@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pl" data-motyw="granat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Słownictwa BEC C1 — 50 Pytań Egzaminacyjnych</title>
+<style>
+:root{
+  color-scheme: light;
+  --akcent:#234a6b; --akcent-tlo:#eaf0f6;
+  --papier:#fbfbf9; --karta:#fff; --tusz:#1a222b; --przygasly:#5d6b78; --slaby:#93a0ab;
+  --linia:#e3e8ed; --dobrze:#2f6b4f; --dobrze-tlo:#eaf3ee; --zle:#8a3b3b; --zle-tlo:#f8efee;
+}
+
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--tusz);background:var(--papier);line-height:1.65;font-size:17px;
+  max-width:46rem;margin:0 auto;padding:0 24px 140px;-webkit-font-smoothing:antialiased}
+h1{font-family:Georgia,serif;font-size:1.9rem;margin:34px 0 4px;font-weight:600}
+.metryka{color:var(--przygasly);font-size:.93rem;padding-bottom:20px;border-bottom:1px solid var(--linia);margin-bottom:8px}
+
+#ster{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  margin:0 -24px 24px;padding:10px 24px;border-bottom:1px solid var(--linia);
+  background:color-mix(in srgb,var(--papier) 88%,transparent);backdrop-filter:blur(10px)}
+#ster button{font:600 .74rem/1 -apple-system,sans-serif;color:var(--przygasly);background:var(--karta);
+  border:1px solid var(--linia);border-radius:99px;padding:7px 13px;cursor:pointer;transition:.15s}
+#ster button:hover{color:var(--akcent);border-color:var(--akcent)}
+#ster button[aria-pressed="true"]{background:var(--akcent);border-color:var(--akcent);color:var(--papier)}
+#ster .rozpieracz{flex:1}
+#wynik{font:700 .8rem/1 -apple-system,sans-serif;color:var(--akcent)}
+
+.pytanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;padding:20px 24px;margin:18px 0}
+.pytanie.ok{border-color:var(--dobrze)}
+.pytanie.blad{border-color:var(--zle)}
+.pytanie > .numer{display:block;font:700 .66rem/1 -apple-system,sans-serif;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--slaby);margin-bottom:9px}
+.pytanie .tresc{font-size:1.03rem;margin-bottom:14px}
+.pytanie .tresc b{color:var(--akcent)}
+
+.opcje{display:flex;flex-direction:column;gap:7px}
+.opcja{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+  font:inherit;color:var(--tusz);background:transparent;border:1px solid var(--linia);
+  border-radius:9px;padding:11px 14px;cursor:pointer;transition:.14s;line-height:1.5}
+.opcja:hover:not(:disabled){border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja:disabled{cursor:default}
+.opcja .klucz{flex:0 0 1.5rem;font:700 .84rem/1.5 -apple-system,sans-serif;color:var(--slaby)}
+.opcja.wybrana{border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja.dobra{border-color:var(--dobrze);background:var(--dobrze-tlo)}
+.opcja.dobra .klucz{color:var(--dobrze)}
+.opcja.zla{border-color:var(--zle);background:var(--zle-tlo)}
+.opcja.zla .klucz{color:var(--zle)}
+
+.wyjasnienie{margin-top:14px;padding:12px 16px;border-left:3px solid var(--slaby);
+  background:var(--akcent-tlo);border-radius:0 8px 8px 0;font-size:.94rem;color:var(--przygasly)}
+.wyjasnienie b{color:var(--akcent)}
+.wyjasnienie[hidden]{display:none}
+
+#podsumowanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;
+  padding:26px 28px;margin:34px 0;text-align:center}
+#podsumowanie[hidden]{display:none}
+#podsumowanie .procent{font:600 3rem/1 Georgia,serif;color:var(--akcent);display:block}
+#podsumowanie .opis{color:var(--przygasly);margin:10px 0 18px}
+#podsumowanie button{font:600 .82rem -apple-system,sans-serif;color:var(--papier);background:var(--akcent);
+  border:0;border-radius:9px;padding:11px 20px;cursor:pointer;margin:0 5px}
+
+@media print{#ster{display:none}.opcja{break-inside:avoid}.pytanie{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<nav id="ster">
+  <button id="btn-mieszaj" aria-pressed="false">Mieszaj pytania</button>
+  <button id="btn-tylko-bledne" aria-pressed="false">Tylko błędne</button>
+  <button id="btn-reset">Od nowa</button>
+  <span class="rozpieracz"></span>
+  <span id="wynik">0 / 0</span>
+</nav>
+
+<h1 id="tytul">Test Słownictwa BEC C1 — 50 Pytań</h1>
+<p class="metryka" id="metryka">Business English Certificate Higher · 50 pytań zamkniętych · Część 1 (1–25) i Część 2 (26–50) z ćwiczeń</p>
+
+<div id="pytania"></div>
+
+<div id="podsumowanie" hidden>
+  <span class="procent" id="procent">—</span>
+  <p class="opis" id="opis-wyniku"></p>
+  <button id="btn-powtorz-bledne">Powtórz błędne</button>
+  <button id="btn-od-nowa">Od nowa</button>
+</div>
+
+<script id="dane" type="application/json">
+{
+  "tytul": "Test Słownictwa BEC C1 — 50 Pytań",
+  "metryka": "Kompletny arkusz testowy z ćwiczeń (pytania 1–50) · 50 pytań · próg 80% (40/50)",
+  "motyw": "granat",
+  "pytania": [
+    {
+      "typ": "abcd",
+      "tresc": "1. The market slowly became ___ by imitation products.",
+      "opcje": ["targeted", "saturated", "merchandised"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: saturated. Rynek staje się nasycony (market saturation) w wyniku nadpodaży imitacji. 'Targeted' oznacza skierowany do grupy docelowej, a 'merchandised' to promowany w punktach sprzedaży."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "2. All expenses are ___ in the following month's pay packet.",
+      "opcje": ["allocated", "reimbursed", "submitted"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: reimbursed. Wydatki służbowe pracownika podlegają refundacji / zwrotowi w pensji (reimbursement). 'Submitted' oznacza dopiero złożone do rozliczenia, a 'allocated' to przypisane z góry w budżecie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "3. The Government has just raised the minimum hourly ___.",
+      "opcje": ["salary", "bonus", "wage"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: wage. Stawka godzinowa to wyłącznie 'hourly wage' (dla pracowników operacyjnych/fizycznych). 'Salary' to stała pensja miesięczna lub roczna (nie ma zwrotu *hourly salary*), a 'bonus' to premia."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "4. As part of the reorganisation we all had to rewrite our job ___.",
+      "opcje": ["description", "satisfaction", "security"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: description. Formalny dokument określający zakres obowiązków i stanowisko to 'job description'. 'Job satisfaction' to poziom zadowolenia, a 'job security' to pewność zatrudnienia."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "5. If we don't take off soon, we'll arrive late at Frankfurt and I'll miss my ___ flight to Amsterdam.",
+      "opcje": ["connecting", "scheduled", "transfer"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: connecting. Lot przesiadkowy to 'connecting flight'. Zwrot *transfer flight* jest kalką i błędem terminologicznym, a 'scheduled flight' oznacza lot rejsowy/rozkładowy."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "6. They're cutting jobs due to the massive ___ in sales.",
+      "opcje": ["slump", "recovery", "devaluation"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: slump. Gwałtowne załamanie popytu i sprzedaży to 'slump in sales'. 'Recovery' to ożywienie koniunktury (wtedy zatrudnia się pracowników!), a 'devaluation' dotyczy dewaluacji waluty."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "7. They phoned to say I'd got the job but I haven't had a letter of ___ yet.",
+      "opcje": ["recruitment", "selection", "appointment"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: appointment. Formalne pismo o zatrudnieniu i powołaniu na stanowisko to 'letter of appointment'. 'Recruitment' to proces naboru, a 'selection' to etap selekcji."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "8. That radio ad has a really nice ___ - which I keep singing in my head.",
+      "opcje": ["jingle", "trademark", "slogan"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: jingle. Krótki, chwytliwy motyw muzyczny w reklamie to 'jingle'. 'Slogan' to tekstowe hasło reklamowe, a 'trademark' to zarejestrowany znak towarowy."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "9. The flight was ___ due to severe weather conditions.",
+      "opcje": ["prevented", "notified", "cancelled"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: cancelled. Lot z powodu złych warunków atmosferycznych zostaje odwołany ('cancelled'). 'Prevented' oznacza zapobieganie czemuś (np. wypadkowi), a 'notified' to powiadomiony."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "10. Most of the company's workforce are ___ office workers.",
+      "opcje": ["white-collar", "apprentice", "blue-collar"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: white-collar. Pracownicy umysłowi i biurowi to 'white-collar workers'. 'Blue-collar' to pracownicy fizyczni na produkcji, a 'apprentice' to praktykant."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "11. I was represented in court by my ___.",
+      "opcje": ["judge", "shop steward", "attorney"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: attorney. Pełnomocnik prawny reprezentujący stronę przed sądem to 'attorney' (lub lawyer). 'Judge' to sędzia wydający wyrok, a 'shop steward' to zakładowy mąż zaufania związków zawodowych."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "12. Make sure you scan all necessary ___ with your expenses claims.",
+      "opcje": ["recipes", "payslips", "receipts"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: receipts. Dowody zakupu / rachunki / paragony to 'receipts' (/rɪˈsiːt/). Uwaga na fałszywego przyjaciela: 'recipe' (/ˈresɪpi/) to przepis kulinarny! 'Payslip' to odcinek z pensji."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "13. Don't forget to include two ___ at the end of your CV.",
+      "opcje": ["references", "evaluations", "records"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: references. Na końcu życiorysu podaje się osoby referencyjne lub referencje ('references'). 'Evaluations' to oceny okresowe w firmie, a 'records' to kartoteki."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "14. We prepared a ___ to send to our 2,000 top customers.",
+      "opcje": ["mailshot", "marketing plan", "franchise"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: mailshot. Masowy mailing ofertowy / przesyłka promocyjna skierowana do bazy klientów to 'mailshot'. 'Marketing plan' to wewnętrzna strategia, a 'franchise' to franczyza."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "15. ___ assessment is about examining what could harm people at work.",
+      "opcje": ["Security", "Damage", "Risk"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: Risk. Badanie czynników szkodliwych i niebezpiecznych w pracy to ocena ryzyka zawodowego ('Risk assessment'). 'Security' to ochrona fizyczna mienia/danych, a 'Damage' to szacowanie powstałych szkód."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "16. My PA normally ___ all my expenses claims.",
+      "opcje": ["deals with", "delegates", "incurs"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: deals with. Asystentka osobista zajmuje się / przetwarza wnioski o zwrot kosztów ('deals with claims'). 'Delegates' oznacza zlecanie zadań podwładnym, a 'incurs' to ponoszenie kosztów z własnej kieszeni."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "17. Every year I have a performance ___ with my line manager.",
+      "opcje": ["discussion", "appraisal", "testimonial"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: appraisal. Coroczna formalna ocena pracownicza z bezpośrednim przełożonym to 'performance appraisal'. 'Discussion' to zwykła luźna rozmowa, a 'testimonial' to referencje od zadowolonego klienta."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "18. We need to freshen up our ___ advertising at supermarket check-outs.",
+      "opcje": ["exhibition", "point-of-sale", "billboard"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: point-of-sale. Reklama bezpośrednio przy kasach sklepowych to materiały w punkcie sprzedaży ('point-of-sale' / POS advertising). 'Billboard' to tablica przydrożna, a 'exhibition' to targi."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "19. After four quarters of negative growth the country was officially in ___.",
+      "opcje": ["liquidation", "recession", "depreciation"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: recession. Makroekonomiczny spadek PKB przez co najmniej dwa kolejne kwartały to recesja gospodarcza ('recession'). 'Liquidation' to likwidacja pojedynczej spółki, a 'depreciation' to amortyzacja lub spadek kursu waluty."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "20. We need to ___ our product more from our competitors'.",
+      "opcje": ["differentiate", "distribute", "differ"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: differentiate. Czasownik przechodni wymagający dopełnienia to 'to differentiate our product from...'. Czasownik 'differ' jest nieprzechodni (*to differ our product* jest błędem gramatycznym)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "21. After her dismissal she took the company to ___.",
+      "opcje": ["prosecution", "law", "court"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: court. Idiom oznaczający skierowanie sprawy na drogę sądową to 'to take someone to court'. 'Prosecution' oznacza oskarżenie prokuratorskie w procesie karnym."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "22. The ___ won his unfair dismissal case and the company paid $20,000.",
+      "opcje": ["plaintiff", "defendant", "witness"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: plaintiff. Powód w procesie cywilnym wnoszący pozew i wygrywający odszkodowanie to 'plaintiff' (lub claimant). 'Defendant' to strona pozwana (firma), a 'witness' to świadek."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "23. We ran a successful social media marketing ___ for six weeks.",
+      "opcje": ["prospectus", "mix", "campaign"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: campaign. Zaplanowane okresowe działania promocyjne to 'marketing campaign'. 'Marketing mix' to model 4P/7P, a 'prospectus' to prospekt emisyjny spółki giełdowej."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "24. The workers went on ___ in protest against low pay.",
+      "opcje": ["dispute", "vacation", "strike"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: strike. Idiom oznaczający rozpoczęcie akcji strajkowej to 'to go on strike'. Zwrot ze sporem to 'to be in dispute with', a 'vacation' to urlop wypoczynkowy."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "25. We sold off all our ___ stock to make room in the warehouse.",
+      "opcje": ["peak", "inventory", "surplus"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: surplus. Zapas nadmiarowy wyprzedawany tanio w celu zwolnienia miejsca w magazynie to 'surplus stock'. 'Inventory stock' to masło maślane, a 'peak' odnosi się do szczytu sezonu."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "26. The bank only invests in companies that follow strict ___ policies on child labour.",
+      "opcje": ["ideals", "brand", "ethical"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: ethical. Polityka etyczna i standardy praw człowieka to 'ethical policies'. 'Ideals' oznacza ogólne ideały życiowe, a 'brand' to marka handlowa."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "27. The motorways and new airport have improved the ___.",
+      "opcje": ["capacity", "commuting", "infrastructure"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: infrastructure. Sieć autostrad i lotnisk to infrastruktura ('transport infrastructure'). 'Capacity' to moce produkcyjne fabryki, a 'commuting' to codzienne dojazdy pracowników."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "28. With a modest budget we had to go for the most ___ plan.",
+      "opcje": ["cost-effective", "sophisticated", "state-of-the-art"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: cost-effective. Przy skromnym budżecie wybiera się wariant najbardziej efektywny kosztowo ('cost-effective'). 'Sophisticated' i 'state-of-the-art' to rozwiązania z najwyższej, bardzo kosztownej półki."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "29. They've got a good ___ of designing innovative products.",
+      "opcje": ["analysis", "track record", "assessment"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: track record. Udokumentowana historia sukcesów i osiągnięć to kolokacja 'to have a good track record of doing sth'. 'Analysis' to analiza danych, a 'assessment' to szacunek/wycena."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "30. Some of their advertising ___ are very amusing.",
+      "opcje": ["slogans", "values", "ethics"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: slogans. Zabawne hasła promocyjne to 'advertising slogans'. 'Values' to wartości korporacyjne, a 'ethics' to zasady etyczne."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "31. With all these new orders, we're struggling to ___ demand.",
+      "opcje": ["produce", "cater", "satisfy"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: satisfy. Zaspokoić popyt rynkowy to kolokacja akademicka 'to satisfy demand' (lub meet demand). Czasownik 'cater' wymaga przyimka (cater for/to), a producenci nie produkują popytu (*produce demand*)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "32. The trainee made a lot of mistakes due to a lack of adequate ___.",
+      "opcje": ["brainstorming", "supervision", "control"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: supervision. Bezpośredni nadzór przełożonego nad pracą praktykanta to 'supervision' ('lack of adequate supervision'). 'Brainstorming' to burza mózgów, a 'control' to mechanizmy audytu systemowego."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "33. We produce locally to avoid the high import ___.",
+      "opcje": ["tariff", "bonus", "price"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: tariff. Cło przywozowe nakładane na granicy to 'import tariff'. 'Bonus' to premia, a 'price' to cena."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "34. We use a ___ firm to distribute our heavy machinery all over the UK.",
+      "opcje": ["haulage", "courier", "public transport"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: haulage. Przedsiębiorstwo spedycji drogowej do przewozu ciężkich maszyn i ładunków to 'haulage firm'. 'Courier' dostarcza paczki kurierskie, a 'public transport' służy do przewozu pasażerów."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "35. With ___ below two per cent, prices haven't increased for two years now.",
+      "opcje": ["income tax", "depreciation", "inflation"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: inflation. Wskaźnik wzrostu poziomu cen to inflacja ('inflation'). Skoro ceny nie wzrosły, inflacja wynosi poniżej 2%. 'Income tax' to podatek dochodowy, a 'depreciation' to amortyzacja."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "36. They ___ the product due to falling sales after eight years on the market.",
+      "opcje": ["recalled", "prevented", "discontinued"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: discontinued. Wycofanie produktu z oferty ze względów komercyjnych (spadek sprzedaży) to 'to discontinue a product'. 'To recall a product' to wycofanie z rynku partii wadliwej lub niebezpiecznej!"
+    },
+    {
+      "typ": "abcd",
+      "tresc": "37. You have to fill in two forms to claim back your travel ___.",
+      "opcje": ["overheads", "expenses", "investments"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: expenses. Koszty podróży służbowych do rozliczenia to 'travel expenses'. 'Overheads' to koszty stałe przedsiębiorstwa (czynsze, media), a 'investments' to nakłady inwestycyjne."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "38. It all depends on your ___ of view, doesn't it?",
+      "opcje": ["point", "type", "angle"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: point. Stały związek frazeologiczny: 'point of view' (punkt widzenia)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "39. They took out a ___ to stop other companies copying the design.",
+      "opcje": ["warranty", "patent", "deed"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: patent. Zastrzeżenie patentowe chroniące wzór lub wynalazek to 'to take out a patent'. 'Warranty' to gwarancja na produkt, a 'deed' to akt notarialny nieruchomości."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "40. The ___ investment in the new factory caused financial problems.",
+      "opcje": ["sensible", "suitable", "substantial"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: substantial. Bardzo wysoka, potężna inwestycja kapitałowa to 'substantial investment'. 'Sensible' oznacza rozsądna (nie spowodowałaby problemów finansowych), a 'suitable' to odpowiednia."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "41. Many ___ dotcom companies go bankrupt within 18 months.",
+      "opcje": ["established", "start-up", "preliminary"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: start-up. Nowo zakładane przedsiębiorstwa technologiczne o wysokim ryzyku to 'start-up dotcom companies'. 'Established' to dojrzałe korporacje o stabilnej pozycji rynkowej."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "42. I have to report to my ___ every two weeks.",
+      "opcje": ["chief executive", "executive assistant", "line manager"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: line manager. Bezpośredni przełożony w strukturze organizacyjnej to 'line manager'. 'Chief executive' to dyrektor generalny (prezes), a 'executive assistant' to asystent zarządu."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "43. All 230 ___ stayed in the same hotel where the conference was held.",
+      "opcje": ["members", "delegates", "guests"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: delegates. Uczestnicy formalnej konferencji naukowej lub kongresu to 'conference delegates'. 'Members' to członkowie organizacji/klubu, a 'guests' to goście hotelowi."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "44. My ___ takes care of all my correspondence and my diary.",
+      "opcje": ["partner", "apprentice", "assistant"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: assistant. Prowadzeniem korespondencji oraz terminarza spotkań ('diary') zajmuje się asystent ('assistant' / PA). 'Partner' to wspólnik w spółce, a 'apprentice' to praktykant."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "45. Many UK supermarkets have ___ their brands into banking services.",
+      "opcje": ["pushed", "diverted", "stretched"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: stretched. Rozszerzenie znanej marki na zupełnie nową branżę (np. supermarket wkracza w usługi bankowe) to w teorii marketingu 'brand stretching' ('to stretch a brand')."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "46. Companies need to ___ their Ethical Engagement Policies or the bank won't invest in them.",
+      "opcje": ["comply with", "appeal to", "bring about"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: comply with. Przestrzegać / dostosować się do polityk etycznych to 'to comply with policies' (kolokacja z compliance). 'Appeal to' oznacza podobać się, a 'bring about' to wywołać/spowodować."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "47. Make sure the goods are all in order before you sign the ___ note.",
+      "opcje": ["advice", "cover", "delivery"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: delivery. Dokument wydania/odbioru towaru to dowód dostawy: 'delivery note'. 'Advice note' to zawiadomienie o wysyłce (awizo), a 'cover note' to nota ubezpieczeniowa."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "48. We have to submit our tax ___ to the tax office by 8 February.",
+      "opcje": ["remittance", "return", "application"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: return. Deklaracja podatkowa składana w urzędzie skarbowym to 'tax return'. 'Remittance' to przekaz pieniężny, a 'application' to wniosek/podanie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "49. If sales don't pick up, we'll have to review our pricing ___.",
+      "opcje": ["policy", "prediction", "value"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: policy. Strategia i reguły wyceny produktów to polityka cenowa: 'pricing policy'. 'Prediction' to prognoza, a 'value' to wartość."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "50. We need to freshen up the window displays at our retail ___.",
+      "opcje": ["offices", "outlets", "facilities"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: outlets. Punkty sprzedaży detalicznej z witrynami wystawowymi to 'retail outlets'. 'Offices' to biura, a 'facilities' to zakłady i obiekty produkcyjne."
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  const dane = JSON.parse(document.getElementById('dane').textContent);
+  const kosz = document.getElementById('pytania');
+  const wynikEl = document.getElementById('wynik');
+  const podsum = document.getElementById('podsumowanie');
+
+  document.title = dane.tytul;
+  document.getElementById('tytul').textContent = dane.tytul;
+  document.getElementById('metryka').textContent = dane.metryka || '';
+  if (dane.motyw) document.documentElement.dataset.motyw = dane.motyw;
+
+  const KLUCZE = ['a)','b)','c)','d)'];
+  let stan = [];
+  let mieszaj = false, tylkoBledne = false;
+
+  function pomieszaj(tablica){
+    const kopia = tablica.slice();
+    for (let i = kopia.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [kopia[i], kopia[j]] = [kopia[j], kopia[i]];
+    }
+    return kopia;
+  }
+
+  function renderuj(){
+    kosz.innerHTML = '';
+    let widoczne = 0;
+    stan.forEach((st, idx) => {
+      if (tylkoBledne && st.poprawnie !== false) return;
+      widoczne++;
+      const el = document.createElement('article');
+      el.className = 'pytanie';
+      if (st.poprawnie === true) el.classList.add('ok');
+      if (st.poprawnie === false) el.classList.add('blad');
+
+      const nr = document.createElement('span');
+      nr.className = 'numer';
+      nr.textContent = `Pytanie ${st.nrOryginalny + 1} z ${dane.pytania.length}`;
+      el.appendChild(nr);
+
+      const tresc = document.createElement('div');
+      tresc.className = 'tresc';
+      tresc.textContent = st.pyt.tresc;
+      el.appendChild(tresc);
+
+      const opcjeDiv = document.createElement('div');
+      opcjeDiv.className = 'opcje';
+      st.pyt.opcje.forEach((opcjaTekst, opcIdx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'opcja';
+        if (st.wybrano === opcIdx) btn.classList.add('wybrana');
+        if (st.poprawnie !== null) {
+          btn.disabled = true;
+          if (opcIdx === st.pyt.poprawna) btn.classList.add('dobra');
+          else if (st.wybrano === opcIdx) btn.classList.add('zla');
+        }
+        btn.innerHTML = `<span class="klucz">${KLUCZE[opcIdx] || ''}</span> <span>${opcjaTekst}</span>`;
+        btn.addEventListener('click', () => {
+          st.wybrano = opcIdx;
+          st.poprawnie = (opcIdx === st.pyt.poprawna);
+          aktualizujWynik();
+          renderuj();
+        });
+        opcjeDiv.appendChild(btn);
+      });
+      el.appendChild(opcjeDiv);
+
+      if (st.poprawnie !== null && st.pyt.wyjasnienie) {
+        const wyj = document.createElement('div');
+        wyj.className = 'wyjasnienie';
+        wyj.innerHTML = `<b>Wyjaśnienie:</b> ${st.pyt.wyjasnienie}`;
+        el.appendChild(wyj);
+      }
+      kosz.appendChild(el);
+    });
+
+    if (widoczne === 0 && tylkoBledne) {
+      kosz.innerHTML = '<p class="metryka" style="text-align:center;padding:30px 0;">Brak błędnych odpowiedzi. Wszystko opanowane!</p>';
+    }
+  }
+
+  function aktualizujWynik(){
+    const zakonczone = stan.filter(s => s.poprawnie !== null);
+    const poprawne = stan.filter(s => s.poprawnie === true).length;
+    wynikEl.textContent = `${poprawne} / ${dane.pytania.length}`;
+
+    if (zakonczone.length === dane.pytania.length) {
+      podsum.hidden = false;
+      const proc = Math.round((poprawne / dane.pytania.length) * 100);
+      document.getElementById('procent').textContent = `${proc}%`;
+      const opis = proc >= 80 ? `Wynik: ${poprawne}/${dane.pytania.length}. Próg zaliczenia osiągnięty z zapasem.` : `Wynik: ${poprawne}/${dane.pytania.length}. Przećwicz błędne odpowiedzi przyciskiem poniżej.`;
+      document.getElementById('opis-wyniku').textContent = opis;
+    } else {
+      podsum.hidden = true;
+    }
+  }
+
+  function inicjalizuj(){
+    let lista = dane.pytania.map((pyt, idx) => ({ pyt, nrOryginalny: idx, poprawnie: null, wybrano: null }));
+    if (mieszaj) lista = pomieszaj(lista);
+    stan = lista;
+    aktualizujWynik();
+    renderuj();
+  }
+
+  document.getElementById('btn-mieszaj').addEventListener('click', function(){
+    mieszaj = !mieszaj;
+    this.setAttribute('aria-pressed', String(mieszaj));
+    inicjalizuj();
+  });
+
+  document.getElementById('btn-tylko-bledne').addEventListener('click', function(){
+    tylkoBledne = !tylkoBledne;
+    this.setAttribute('aria-pressed', String(tylkoBledne));
+    renderuj();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', inicjalizuj);
+  document.getElementById('btn-od-nowa').addEventListener('click', inicjalizuj);
+  document.getElementById('btn-powtorz-bledne').addEventListener('click', () => {
+    tylkoBledne = true;
+    document.getElementById('btn-tylko-bledne').setAttribute('aria-pressed', 'true');
+    renderuj();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  inicjalizuj();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Angielski C1</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Angielski C1">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+:root {
+  color-scheme: light;
+  --tlo: #fbfbf9;
+  --karta: #ffffff;
+  --tusz: #1a222b;
+  --przygaszony: #64748b;
+  --slaby: #94a3b8;
+  --akcent: #234a6b;
+  --akcent-tlo: #eef4f8;
+  --linia: #e2e8f0;
+  --dobrze: #166534;
+  --dobrze-tlo: #f0fdf4;
+  --zle: #991b1b;
+  --zle-tlo: #fef2f2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--tlo);
+  color: var(--tusz);
+  line-height: 1.45;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+  min-height: 100vh;
+  user-select: none;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(251, 251, 249, 0.96);
+  backdrop-filter: blur(12px);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linia);
+}
+
+.pasek-gorny {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.lewa-sekcja {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prawa-sekcja {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tytul-apki {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--akcent);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.btn-odswiez {
+  background: var(--akcent);
+  color: #fff;
+  border: 1px solid var(--akcent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 99px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-odswiez:active {
+  opacity: 0.8;
+}
+
+.btn-udostepnij {
+  background: var(--akcent-tlo);
+  color: var(--akcent);
+  border: 1px solid var(--akcent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 99px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.odznaka-dni {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--akcent);
+  background: var(--akcent-tlo);
+  padding: 4px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--akcent);
+  white-space: nowrap;
+}
+
+.kontener {
+  padding: 14px 16px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* NAWIGACJA DOLNA DLA KCIUKA */
+.nawigacja-dolna {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--linia);
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 4px calc(env(safe-area-inset-bottom) + 6px);
+}
+
+.przycisk-karty {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--przygaszony);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.przycisk-karty.aktywny {
+  color: var(--akcent);
+  background: var(--akcent-tlo);
+  font-weight: 700;
+}
+
+/* WIDOKI */
+.widok {
+  display: none;
+}
+.widok.aktywny {
+  display: block;
+}
+
+/* FILTRY */
+.wiersz-filtrow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+}
+.wiersz-filtrow::-webkit-scrollbar {
+  display: none;
+}
+
+.pigulka {
+  padding: 6px 12px;
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--przygaszony);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pigulka.aktywna {
+  background: var(--akcent);
+  color: #fff;
+  border-color: var(--akcent);
+}
+
+/* PASEK AKCJI FISZKI */
+.pasek-akcji-fiszki {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.btn-losuj {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--przygaszony);
+  cursor: pointer;
+}
+.btn-losuj.aktywny {
+  background: var(--akcent);
+  color: #fff;
+  border-color: var(--akcent);
+}
+
+/* KARTA FISZKI */
+.obszar-fiszki {
+  perspective: 1000px;
+  margin: 6px 0 16px;
+  min-height: 290px;
+  touch-action: pan-y;
+}
+
+.karta-fiszka {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 16px;
+  padding: 24px 20px;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.karta-fiszka:active {
+  transform: scale(0.985);
+}
+
+.karta-kategoria {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--akcent);
+  letter-spacing: 0.5px;
+}
+
+.karta-slowo {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--tusz);
+  margin: 14px 0 8px;
+  line-height: 1.25;
+}
+
+.karta-znaczenie {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--akcent);
+  margin-bottom: 12px;
+}
+
+.karta-definicja {
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.karta-pulapka {
+  background: var(--zle-tlo);
+  border-left: 3px solid var(--zle);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--zle);
+  border-radius: 0 8px 8px 0;
+  margin-top: 8px;
+}
+
+.karta-podpowiedz {
+  text-align: center;
+  font-size: 11px;
+  color: var(--slaby);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* PRZYCISKI AKCJI POD KCIUK */
+.przyciski-akcji {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn-akcja {
+  flex: 1;
+  padding: 16px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 1px solid var(--linia);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-powtorz {
+  background: #fff;
+  color: var(--zle);
+  border-color: #fecaca;
+}
+.btn-powtorz:active {
+  background: var(--zle-tlo);
+}
+
+.btn-umiem {
+  background: var(--akcent);
+  color: #fff;
+  border-color: var(--akcent);
+}
+.btn-umiem:active {
+  opacity: 0.9;
+}
+
+.licznik-postepu {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--przygaszony);
+  margin-top: 12px;
+}
+
+/* TESTY I TRENER ABCD */
+.pasek-testu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.numer-pytania {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--przygaszony);
+  text-transform: uppercase;
+}
+
+.wynik-punktowy {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--akcent);
+}
+
+.karta-postepu-ai {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.wiersz-postepu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tusz);
+  margin-bottom: 6px;
+}
+
+.procent-postepu {
+  color: var(--akcent);
+}
+
+.pasek-tlo {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.pasek-fill {
+  height: 100%;
+  background: var(--akcent);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.wiersz-stopki-postepu {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--przygaszony);
+}
+
+.karta-pytania {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 14px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.opcje-pionowe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.przycisk-opcja {
+  width: 100%;
+  text-align: left;
+  background: var(--karta);
+  border: 1.5px solid var(--linia);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tusz);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.przycisk-opcja.dobra {
+  border-color: var(--dobrze);
+  background: var(--dobrze-tlo);
+  color: var(--dobrze);
+  font-weight: 700;
+}
+
+.przycisk-opcja.zla {
+  border-color: var(--zle);
+  background: var(--zle-tlo);
+  color: var(--zle);
+}
+
+.wyjasnienie-testu {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--akcent-tlo);
+  border-left: 3px solid var(--akcent);
+  border-radius: 0 10px 10px 0;
+  font-size: 13px;
+  color: var(--akcent);
+  line-height: 1.4;
+}
+
+.btn-nastepne {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--akcent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* WIDOK WYSZUKIWARKI */
+.pole-szukania {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 1.5px solid var(--linia);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--tusz);
+  outline: none;
+  margin-bottom: 12px;
+}
+.pole-szukania:focus {
+  border-color: var(--akcent);
+}
+
+.pozycja-listy {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.pozycja-slowo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tusz);
+}
+
+.pozycja-pl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--akcent);
+  margin: 3px 0;
+}
+
+.pozycja-pulapka {
+  font-size: 12px;
+  color: #475569;
+}
+
+/* POWIADOMIENIE BANNER */
+.baner-powiadomien {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.tekst-powiadomien {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tusz);
+}
+
+.btn-powiadomienie {
+  padding: 6px 12px;
+  background: var(--akcent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  border-radius: 99px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.powiadomienie-toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tusz);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="pasek-gorny">
+    <div class="lewa-sekcja">
+      <div class="tytul-apki">Angielski C1</div>
+    </div>
+    <div class="prawa-sekcja">
+      <button class="btn-odswiez" id="btn-odswiez">Odśwież</button>
+      <button class="btn-udostepnij" id="btn-udostepnij">Udostępnij</button>
+      <div class="odznaka-dni" id="odznaka-dni">Test: 20 dni</div>
+    </div>
+  </div>
+</header>
+
+<div class="kontener">
+
+  <!-- BANNER PRZYPOMNIEŃ -->
+  <div class="baner-powiadomien" id="baner-powiadomien">
+    <div class="tekst-powiadomien">Przypomnienia o powtórce przed testem</div>
+    <button class="btn-powiadomienie" id="btn-wlacz-powiadomienia">Włącz</button>
+  </div>
+
+  <div class="powiadomienie-toast" id="toast">Link skopiowany do schowka</div>
+
+  <!-- WIDOK 1: FISZKI -->
+  <section class="widok aktywny" id="widok-fiszki">
+    <div class="wiersz-filtrow">
+      <button class="pigulka aktywna" data-filtr="wszystko">Wszystko</button>
+      <button class="pigulka" data-filtr="lekcja">Tylko z lekcji</button>
+      <button class="pigulka" data-filtr="finanse">Finanse</button>
+      <button class="pigulka" data-filtr="hr">HR i Praca</button>
+      <button class="pigulka" data-filtr="marketing">Marketing</button>
+      <button class="pigulka" data-filtr="bledne">Do powtórki (<span id="licznik-blednych">0</span>)</button>
+    </div>
+
+    <div class="pasek-akcji-fiszki">
+      <div style="font-size:11px; font-weight:600; color:var(--przygaszony);">Dotknij fiszkę lub przesuń palcem</div>
+      <button class="btn-losuj" id="btn-losuj">Losuj</button>
+    </div>
+
+    <div class="obszar-fiszki" id="obszar-fiszki">
+      <div class="karta-fiszka" id="karta-fiszka">
+        <div class="karta-kategoria" id="fiszka-kategoria">Kategoria</div>
+        <div>
+          <div class="karta-slowo" id="fiszka-slowo">Ładowanie...</div>
+          <div class="karta-znaczenie" id="fiszka-znaczenie" style="display:none;">Znaczenie</div>
+          <div class="karta-definicja" id="fiszka-definicja" style="display:none;">Definicja</div>
+          <div class="karta-pulapka" id="fiszka-pulapka" style="display:none;">Pułapka</div>
+        </div>
+        <div class="karta-podpowiedz" id="fiszka-podpowiedz">Dotknij aby odsłonić</div>
+      </div>
+    </div>
+
+    <div class="przyciski-akcji">
+      <button class="btn-akcja btn-powtorz" id="btn-powtorz">
+        <span>Powtórz</span>
+      </button>
+      <button class="btn-akcja btn-umiem" id="btn-umiem">
+        <span>Umiem</span>
+      </button>
+    </div>
+
+    <div class="licznik-postepu" id="licznik-fiszki">Karta 1 z 1382</div>
+  </section>
+
+  <!-- WIDOK 2: TRENER SPRYTNOODPORNY ABCD -->
+  <section class="widok" id="widok-sprytny">
+    <div class="wiersz-filtrow" style="margin-bottom:8px;">
+      <button class="pigulka aktywna" id="sprytny-tryb-enpl" data-tryb="en_to_pl">Słowo do PL</button>
+      <button class="pigulka" id="sprytny-tryb-plen" data-tryb="pl_to_en">PL do Słowa EN</button>
+      <button class="pigulka" id="sprytny-tryb-defen" data-tryb="def_to_en">Definicja do Słowa</button>
+      <button class="pigulka" id="sprytny-tryb-endef" data-tryb="en_to_def">Słowo do Definicji</button>
+      <button class="pigulka" id="sprytny-tryb-ai" data-tryb="ai_zdania">Zdania z luką (AI 27B)</button>
+    </div>
+    <div class="wiersz-filtrow" style="margin-bottom:12px;">
+      <button class="pigulka aktywna" id="sprytny-pula-lekcja" data-pula="lekcja">Tylko lekcja</button>
+      <button class="pigulka" id="sprytny-pula-wszystko" data-pula="wszystko">Cała baza</button>
+      <button class="pigulka" id="sprytny-pula-fin" data-pula="finanse">Finanse</button>
+    </div>
+
+    <div class="karta-postepu-ai" id="karta-postepu-ai" style="display:none;">
+      <div class="wiersz-postepu">
+        <span class="etykieta-postepu">Baza pytań korporacyjnych AI 27B</span>
+        <span class="procent-postepu" id="ai-procent">0%</span>
+      </div>
+      <div class="pasek-tlo">
+        <div class="pasek-fill" id="ai-pasek-fill" style="width: 0%;"></div>
+      </div>
+      <div class="wiersz-stopki-postepu">
+        <span id="ai-licznik-pytan">0 z 1382 pytań</span>
+        <span id="ai-szacunek-czasu">Szacunek czasu: ok. 21h</span>
+      </div>
+    </div>
+
+    <div class="pasek-testu">
+      <span class="numer-pytania" id="sprytny-nr">Pytanie 1</span>
+      <span class="wynik-punktowy" id="sprytny-wynik">Wynik: 0 z 0</span>
+    </div>
+
+    <div class="karta-pytania" id="sprytny-tresc">Ładowanie pytania...</div>
+    <div class="opcje-pionowe" id="sprytny-opcje"></div>
+    <div class="wyjasnienie-testu" id="sprytny-wyjasnienie" style="display:none;"></div>
+    <button class="btn-nastepne" id="sprytny-btn-dalej" style="display:none;">Następne pytanie</button>
+  </section>
+
+  <!-- WIDOK 3: TEST BEC 1 (50 PYTAŃ) -->
+  <section class="widok" id="widok-bec1">
+    <div class="pasek-testu">
+      <span class="numer-pytania" id="bec1-nr">Pytanie 1 z 50</span>
+      <span class="wynik-punktowy" id="bec1-wynik">Wynik: 0 z 0</span>
+    </div>
+    <div class="karta-pytania" id="bec1-tresc">Treść pytania</div>
+    <div class="opcje-pionowe" id="bec1-opcje"></div>
+    <div class="wyjasnienie-testu" id="bec1-wyjasnienie" style="display:none;"></div>
+    <button class="btn-nastepne" id="bec1-btn-dalej" style="display:none;">Następne pytanie</button>
+  </section>
+
+  <!-- WIDOK 4: TEST BEC 2 (25 PYTAŃ) -->
+  <section class="widok" id="widok-bec2">
+    <div class="pasek-testu">
+      <span class="numer-pytania" id="bec2-nr">Pytanie 1 z 25</span>
+      <span class="wynik-punktowy" id="bec2-wynik">Wynik: 0 z 0</span>
+    </div>
+    <div class="karta-pytania" id="bec2-tresc">Treść pytania</div>
+    <div class="opcje-pionowe" id="bec2-opcje"></div>
+    <div class="wyjasnienie-testu" id="bec2-wyjasnienie" style="display:none;"></div>
+    <button class="btn-nastepne" id="bec2-btn-dalej" style="display:none;">Następne pytanie</button>
+  </section>
+
+  <!-- WIDOK 5: BAZA SŁÓWEK I SZUKANIE -->
+  <section class="widok" id="widok-szukaj">
+    <input type="text" class="pole-szukania" id="pole-szukania" placeholder="Wpisz słowo angielskie lub polskie">
+    <div class="licznik-postepu" id="licznik-szukania" style="text-align:left; margin-bottom:10px;">Znaleziono: 1382 słówek</div>
+    <div id="lista-wynikow"></div>
+  </section>
+
+</div>
+
+<nav class="nawigacja-dolna">
+  <button class="przycisk-karty aktywny" data-target="widok-fiszki">
+    <span>Fiszki</span>
+  </button>
+  <button class="przycisk-karty" data-target="widok-sprytny">
+    <span>Trener ABCD</span>
+  </button>
+  <button class="przycisk-karty" data-target="widok-bec1">
+    <span>Test BEC 1</span>
+  </button>
+  <button class="przycisk-karty" data-target="widok-bec2">
+    <span>Test BEC 2</span>
+  </button>
+  <button class="przycisk-karty" data-target="widok-szukaj">
+    <span>Baza 1382</span>
+  </button>
+</nav>
+
+<script src="./baza.js"></script>
+<script>
+(function(){
+  function pobierzDniDoTestu() {
+    const dataTestu = new Date(2026, 10, 19);
+    const dzis = new Date();
+    const roznica = dataTestu.getTime() - dzis.getTime();
+    return Math.max(0, Math.ceil(roznica / (1000 * 60 * 60 * 24)));
+  }
+  const dniDoTestu = pobierzDniDoTestu();
+  const elOdznakaDni = document.getElementById('odznaka-dni');
+  if (elOdznakaDni) {
+    elOdznakaDni.textContent = 'Test: ' + dniDoTestu + ' dni';
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(r => r.update()).catch(() => {});
+  }
+
+  const toastEl = document.getElementById('toast');
+  function pokazToast(komunikat) {
+    toastEl.textContent = komunikat;
+    toastEl.style.display = 'block';
+    setTimeout(() => {
+      toastEl.style.display = 'none';
+    }, 2200);
+  }
+
+  async function wyczyscPamiacIOdswiez() {
+    pokazToast('Czyszczenie pamięci i odświeżanie...');
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          await r.unregister();
+        }
+      }
+    } catch (e) {}
+    setTimeout(() => {
+      window.location.reload(true);
+    }, 250);
+  }
+
+  const btnOdswiez = document.getElementById('btn-odswiez');
+  if (btnOdswiez) {
+    btnOdswiez.addEventListener('click', wyczyscPamiacIOdswiez);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) reg.update();
+      });
+    }
+  });
+
+  const btnUdostepnij = document.getElementById('btn-udostepnij');
+  btnUdostepnij.addEventListener('click', () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Angielski C1 Koźmiński',
+        text: 'Aplikacja do nauki słówek i testów BEC C1',
+        url: url
+      }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        pokazToast('Link skopiowany do schowka');
+      }).catch(() => {
+        pokazToast('Skopiuj adres z przeglądarki');
+      });
+    } else {
+      pokazToast('Skopiuj adres z przeglądarki');
+    }
+  });
+
+  const STORAGE_KEY_BLEDNE = 'angielski_c1_bledne_id';
+  let bledneId = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_BLEDNE) || '[]'));
+
+  function zapiszBledne() {
+    localStorage.setItem(STORAGE_KEY_BLEDNE, JSON.stringify(Array.from(bledneId)));
+    document.getElementById('licznik-blednych').textContent = bledneId.size;
+  }
+  zapiszBledne();
+
+  const btnPowiadomienia = document.getElementById('btn-wlacz-powiadomienia');
+  const banerPowiadomien = document.getElementById('baner-powiadomien');
+
+  if (window.Notification && Notification.permission === 'granted') {
+    banerPowiadomien.style.display = 'none';
+  }
+
+  btnPowiadomienia.addEventListener('click', () => {
+    if (!('Notification' in window)) {
+      pokazToast('Przeglądarka nie obsługuje powiadomień');
+      return;
+    }
+    Notification.requestPermission().then((perm) => {
+      if (perm === 'granted') {
+        banerPowiadomien.style.display = 'none';
+        pokazToast('Powiadomienia aktywne');
+        try {
+          new Notification('Angielski C1 Koźmiński', {
+            body: 'Przypomnienia aktywne. Do testu 19 listopada zostało ' + dniDoTestu + ' dni.',
+            icon: './icon-192.png'
+          });
+        } catch (e) {}
+      } else {
+        pokazToast('Powiadomienia zablokowane w ustawieniach');
+      }
+    });
+  });
+
+  const przyciskiNaw = document.querySelectorAll('.przycisk-karty');
+  const widoki = document.querySelectorAll('.widok');
+
+  przyciskiNaw.forEach(btn => {
+    btn.addEventListener('click', () => {
+      przyciskiNaw.forEach(b => b.classList.remove('aktywny'));
+      widoki.forEach(w => w.classList.remove('aktywny'));
+      btn.classList.add('aktywny');
+      const targetId = btn.getAttribute('data-target');
+      document.getElementById(targetId).classList.add('aktywny');
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // LOGIKA FISZEK
+  const baza = window.BAZA_SLOWEK || [];
+  let aktywnaPula = baza.slice();
+  let indeksFiszki = 0;
+  let czyOdslonieta = false;
+  let czyLosowo = true;
+
+  const elKat = document.getElementById('fiszka-kategoria');
+  const elSlowo = document.getElementById('fiszka-slowo');
+  const elZnaczenie = document.getElementById('fiszka-znaczenie');
+  const elDef = document.getElementById('fiszka-definicja');
+  const elPulapka = document.getElementById('fiszka-pulapka');
+  const elPodpowiedz = document.getElementById('fiszka-podpowiedz');
+  const elLicznik = document.getElementById('licznik-fiszki');
+  const kartaEl = document.getElementById('karta-fiszka');
+  const btnLosuj = document.getElementById('btn-losuj');
+  if (btnLosuj) btnLosuj.classList.add('aktywny');
+
+  function przetasujTablice(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+  przetasujTablice(aktywnaPula);
+
+  btnLosuj.addEventListener('click', () => {
+    czyLosowo = !czyLosowo;
+    btnLosuj.classList.toggle('aktywny', czyLosowo);
+    if (czyLosowo) {
+      przetasujTablice(aktywnaPula);
+      indeksFiszki = 0;
+      pokazToast('Kolejność losowa włączona');
+    } else {
+      zastosujFiltrAktualny();
+      pokazToast('Kolejność domyślna');
+    }
+    pokazFiszke();
+  });
+
+  function pokazFiszke() {
+    if (aktywnaPula.length === 0) {
+      elKat.textContent = 'Powtórki';
+      elSlowo.textContent = 'Brak słówek w tej kategorii';
+      elZnaczenie.style.display = 'none';
+      elDef.style.display = 'none';
+      elPulapka.style.display = 'none';
+      elPodpowiedz.textContent = 'Wybierz inny filtr powyżej';
+      elLicznik.textContent = '0 z 0';
+      return;
+    }
+    if (indeksFiszki >= aktywnaPula.length) indeksFiszki = 0;
+    const pozycja = aktywnaPula[indeksFiszki];
+
+    czyOdslonieta = false;
+    elKat.textContent = pozycja.category || 'Ogólne C1';
+    elSlowo.textContent = pozycja.en;
+    elZnaczenie.textContent = pozycja.pl;
+    elZnaczenie.style.display = 'none';
+
+    elDef.textContent = pozycja.def || '';
+    elDef.style.display = 'none';
+
+    if (pozycja.trap) {
+      elPulapka.textContent = 'Pułapka wykładowcy: ' + pozycja.trap;
+      elPulapka.style.display = 'none';
+    } else {
+      elPulapka.style.display = 'none';
+    }
+
+    elPodpowiedz.textContent = 'Dotknij aby odsłonić';
+    elLicznik.textContent = 'Karta ' + (indeksFiszki + 1) + ' z ' + aktywnaPula.length;
+  }
+
+  function odwrocFiszke() {
+    if (aktywnaPula.length === 0) return;
+    czyOdslonieta = !czyOdslonieta;
+    const widok = czyOdslonieta ? 'block' : 'none';
+    elZnaczenie.style.display = widok;
+    elDef.style.display = widok;
+    if (aktywnaPula[indeksFiszki].trap) {
+      elPulapka.style.display = widok;
+    }
+    elPodpowiedz.textContent = czyOdslonieta ? 'Wybierz Umiem lub Powtórz' : 'Dotknij aby odsłonić';
+  }
+
+  kartaEl.addEventListener('click', odwrocFiszke);
+
+  function akcjaUmiem() {
+    if (aktywnaPula.length === 0) return;
+    const cur = aktywnaPula[indeksFiszki];
+    bledneId.delete(cur.id);
+    zapiszBledne();
+    indeksFiszki++;
+    pokazFiszke();
+  }
+
+  function akcjaPowtorz() {
+    if (aktywnaPula.length === 0) return;
+    const cur = aktywnaPula[indeksFiszki];
+    bledneId.add(cur.id);
+    zapiszBledne();
+    indeksFiszki++;
+    pokazFiszke();
+  }
+
+  document.getElementById('btn-umiem').addEventListener('click', akcjaUmiem);
+  document.getElementById('btn-powtorz').addEventListener('click', akcjaPowtorz);
+
+  let startX = 0;
+  let startY = 0;
+  const obszarFiszki = document.getElementById('obszar-fiszki');
+
+  obszarFiszki.addEventListener('touchstart', (e) => {
+    startX = e.changedTouches[0].screenX;
+    startY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  obszarFiszki.addEventListener('touchend', (e) => {
+    const diffX = e.changedTouches[0].screenX - startX;
+    const diffY = e.changedTouches[0].screenY - startY;
+    if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        akcjaUmiem();
+      } else {
+        akcjaPowtorz();
+      }
+    }
+  }, { passive: true });
+
+  let aktywnyFiltrNazwa = 'wszystko';
+  function zastosujFiltrAktualny() {
+    if (aktywnyFiltrNazwa === 'wszystko') {
+      aktywnaPula = baza.slice();
+    } else if (aktywnyFiltrNazwa === 'lekcja') {
+      aktywnaPula = baza.filter(x => x.source === 'lekcja' || x.source === 'lekcja_handout_matching');
+    } else if (aktywnyFiltrNazwa === 'finanse') {
+      aktywnaPula = baza.filter(x => (x.category || '').toLowerCase().includes('finance') || (x.category || '').toLowerCase().includes('banking') || (x.category || '').toLowerCase().includes('money'));
+    } else if (aktywnyFiltrNazwa === 'hr') {
+      aktywnaPula = baza.filter(x => (x.category || '').toLowerCase().includes('hr') || (x.category || '').toLowerCase().includes('workplace') || (x.category || '').toLowerCase().includes('labor'));
+    } else if (aktywnyFiltrNazwa === 'marketing') {
+      aktywnaPula = baza.filter(x => (x.category || '').toLowerCase().includes('marketing') || (x.category || '').toLowerCase().includes('commerce'));
+    } else if (aktywnyFiltrNazwa === 'bledne') {
+      aktywnaPula = baza.filter(x => bledneId.has(x.id));
+    }
+    if (czyLosowo) {
+      przetasujTablice(aktywnaPula);
+    }
+    indeksFiszki = 0;
+  }
+
+  const pigulki = document.querySelectorAll('.pigulka');
+  pigulki.forEach(p => {
+    p.addEventListener('click', () => {
+      pigulki.forEach(x => x.classList.remove('aktywna'));
+      p.classList.add('aktywna');
+      aktywnyFiltrNazwa = p.getAttribute('data-filtr');
+      zastosujFiltrAktualny();
+      pokazFiszke();
+    });
+  });
+
+  pokazFiszke();
+
+  // LOGIKA TRENERA SPRYTNOODPORNEGO
+  const mapaKategorii = {};
+  baza.forEach(w => {
+    const k = w.category || 'Ogólne';
+    if (!mapaKategorii[k]) mapaKategorii[k] = [];
+    mapaKategorii[k].push(w);
+  });
+
+  function usunNawiasy(txt) {
+    if (!txt) return '';
+    return txt.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  let sprytnyTryb = 'en_to_pl';
+  let sprytnyPulaTyp = 'lekcja';
+  let sprytnyNr = 0;
+  let sprytnyPunkty = 0;
+  let sprytnyZrobione = 0;
+
+  const sprytnyNrEl = document.getElementById('sprytny-nr');
+  const sprytnyWynikEl = document.getElementById('sprytny-wynik');
+  const sprytnyTrescEl = document.getElementById('sprytny-tresc');
+  const sprytnyOpcjeEl = document.getElementById('sprytny-opcje');
+  const sprytnyWyjEl = document.getElementById('sprytny-wyjasnienie');
+  const sprytnyBtnDalej = document.getElementById('sprytny-btn-dalej');
+  const kartaPostepuAiEl = document.getElementById('karta-postepu-ai');
+
+  function odswiezPostepAi() {
+    const aiCount = (window.TEST_AI_ZDANIA || []).length;
+    const totalCount = (window.BAZA_SLOWEK || []).length || 1382;
+    const pct = ((aiCount / totalCount) * 100).toFixed(1);
+    const rem = Math.max(0, totalCount - aiCount);
+    const hours = Math.round((rem * 1.35) / 60);
+
+    const elPct = document.getElementById('ai-procent');
+    const elFill = document.getElementById('ai-pasek-fill');
+    const elLicznik = document.getElementById('ai-licznik-pytan');
+    const elSzacunek = document.getElementById('ai-szacunek-czasu');
+
+    if (elPct) elPct.textContent = pct + '%';
+    if (elFill) elFill.style.width = pct + '%';
+    if (elLicznik) elLicznik.textContent = aiCount + ' z ' + totalCount + ' pytań';
+    if (elSzacunek) elSzacunek.textContent = 'Pozostało: ok. ' + hours + 'h do 100% bazy';
+  }
+
+  let sprytnaTalia = [];
+  let aiTalia = [];
+
+  function resetujTalieSprytna() {
+    sprytnaTalia = [];
+    aiTalia = [];
+  }
+
+  document.querySelectorAll('#widok-sprytny .pigulka').forEach(p => {
+    p.addEventListener('click', () => {
+      if (p.getAttribute('data-tryb')) {
+        document.querySelectorAll('#widok-sprytny [data-tryb]').forEach(x => x.classList.remove('aktywna'));
+        p.classList.add('aktywna');
+        sprytnyTryb = p.getAttribute('data-tryb');
+        if (kartaPostepuAiEl) {
+          if (sprytnyTryb === 'ai_zdania') {
+            kartaPostepuAiEl.style.display = 'block';
+            odswiezPostepAi();
+          } else {
+            kartaPostepuAiEl.style.display = 'none';
+          }
+        }
+        resetujTalieSprytna();
+        zaladujSprytnePytanie();
+      } else if (p.getAttribute('data-pula')) {
+        document.querySelectorAll('#widok-sprytny [data-pula]').forEach(x => x.classList.remove('aktywna'));
+        p.classList.add('aktywna');
+        sprytnyPulaTyp = p.getAttribute('data-pula');
+        resetujTalieSprytna();
+        zaladujSprytnePytanie();
+      }
+    });
+  });
+
+  function pobierzPuleSprytna() {
+    let p = baza;
+    if (sprytnyPulaTyp === 'lekcja') {
+      p = baza.filter(w => w.source === 'lekcja' || w.source === 'lekcja_handout_matching');
+    } else if (sprytnyPulaTyp === 'finanse') {
+      p = baza.filter(w => (w.category || '').toLowerCase().includes('financ') || (w.category || '').toLowerCase().includes('bank') || (w.category || '').toLowerCase().includes('money'));
+    }
+    if (sprytnyTryb === 'def_to_en' || sprytnyTryb === 'en_to_def') {
+      const zDef = p.filter(w => w.def && w.def.trim().length > 5);
+      if (zDef.length >= 4) return zDef;
+      return baza.filter(w => w.def && w.def.trim().length > 5);
+    }
+    return p;
+  }
+
+  function pobierzNastepneAiPytanie() {
+    if (aiTalia.length === 0) {
+      const pula = (window.TEST_AI_ZDANIA || []).slice();
+      for (let i = pula.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pula[i], pula[j]] = [pula[j], pula[i]];
+      }
+      aiTalia = pula;
+    }
+    return aiTalia.pop();
+  }
+
+  function pobierzNastepneSlowoSprytne() {
+    if (sprytnaTalia.length === 0) {
+      const pula = pobierzPuleSprytna().slice();
+      for (let i = pula.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pula[i], pula[j]] = [pula[j], pula[i]];
+      }
+      sprytnaTalia = pula;
+    }
+    return sprytnaTalia.pop();
+  }
+
+  function zaladujSprytnePytanie() {
+    let prompt = '';
+    let opcje = [];
+    let poprawnyIdx = 0;
+    let wyjTekst = '';
+
+    if (sprytnyTryb === 'ai_zdania') {
+      const q = pobierzNastepneAiPytanie();
+      if (!q) {
+        sprytnyTrescEl.textContent = 'Brak pytań AI w bazie';
+        return;
+      }
+      prompt = q.tresc;
+      // Przetasuj opcje aby odpowiedź nie była zawsze pod tą samą literą
+      const opcjeZFlaga = q.opcje.map((o, idx) => ({ tekst: o, poprawna: idx === q.poprawna }));
+      for (let i = opcjeZFlaga.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opcjeZFlaga[i], opcjeZFlaga[j]] = [opcjeZFlaga[j], opcjeZFlaga[i]];
+      }
+      opcje = opcjeZFlaga.map(o => o.tekst);
+      poprawnyIdx = opcjeZFlaga.findIndex(o => o.poprawna);
+      wyjTekst = q.wyjasnienie;
+    } else {
+      const target = pobierzNastepneSlowoSprytne();
+      if (!target) return;
+
+      let poprawna = '';
+      let extractor = null;
+
+      if (sprytnyTryb === 'en_to_pl') {
+        prompt = usunNawiasy(target.en);
+        poprawna = usunNawiasy(target.pl);
+        extractor = w => usunNawiasy(w.pl);
+      } else if (sprytnyTryb === 'pl_to_en') {
+        prompt = usunNawiasy(target.pl);
+        poprawna = usunNawiasy(target.en);
+        extractor = w => usunNawiasy(w.en);
+      } else if (sprytnyTryb === 'en_to_def') {
+        prompt = usunNawiasy(target.en);
+        poprawna = usunNawiasy(target.def);
+        extractor = w => usunNawiasy(w.def);
+      } else {
+        prompt = usunNawiasy(target.def);
+        poprawna = usunNawiasy(target.en);
+        extractor = w => usunNawiasy(w.en);
+      }
+
+      const kat = target.category || 'Ogólne';
+      const sameCat = (mapaKategorii[kat] || []).filter(w => w.id !== target.id);
+      const pulaBiezaca = pobierzPuleSprytna();
+      let candPool = sameCat.length >= 4 ? sameCat : sameCat.concat(pulaBiezaca.filter(w => w.id !== target.id));
+      if (sprytnyTryb === 'en_to_def' || sprytnyTryb === 'def_to_en') {
+        candPool = candPool.filter(w => w.def && w.def.trim().length > 5);
+        if (candPool.length < 4) {
+          candPool = candPool.concat(baza.filter(w => w.id !== target.id && w.def && w.def.trim().length > 5));
+        }
+      }
+
+      const kandydaci = candPool
+        .map(w => extractor(w))
+        .filter(txt => txt && txt.toLowerCase() !== poprawna.toLowerCase());
+
+      kandydaci.sort((a, b) => Math.abs(a.length - poprawna.length) - Math.abs(b.length - poprawna.length));
+
+      const wybraneDystraktory = [];
+      const uzyte = new Set();
+      for (let d of kandydaci) {
+        if (!uzyte.has(d) && d !== poprawna) {
+          uzyte.add(d);
+          wybraneDystraktory.push(d);
+          if (wybraneDystraktory.length === 3) break;
+        }
+      }
+
+      opcje = [poprawna, ...wybraneDystraktory];
+      for (let i = opcje.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opcje[i], opcje[j]] = [opcje[j], opcje[i]];
+      }
+      poprawnyIdx = opcje.indexOf(poprawna);
+
+      wyjTekst = target.trap ? 'Pułapka wykładowcy: ' + usunNawiasy(target.trap) : '';
+      if (target.def && sprytnyTryb !== 'en_to_def') {
+        wyjTekst = 'Definicja: ' + usunNawiasy(target.def) + (wyjTekst ? ' | ' + wyjTekst : '');
+      }
+    }
+
+    sprytnyNr++;
+    sprytnyNrEl.textContent = 'Pytanie ' + sprytnyNr;
+    sprytnyWynikEl.textContent = 'Wynik: ' + sprytnyPunkty + ' z ' + sprytnyZrobione;
+    sprytnyTrescEl.textContent = prompt;
+    sprytnyOpcjeEl.innerHTML = '';
+    sprytnyWyjEl.style.display = 'none';
+    sprytnyBtnDalej.style.display = 'none';
+
+    opcje.forEach((opc, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'przycisk-opcja';
+      btn.textContent = opc;
+      btn.addEventListener('click', () => {
+        Array.from(sprytnyOpcjeEl.children).forEach((b, bIdx) => {
+          b.disabled = true;
+          if (bIdx === poprawnyIdx) b.classList.add('dobra');
+          else if (bIdx === idx) b.classList.add('zla');
+        });
+        sprytnyZrobione++;
+        if (idx === poprawnyIdx) {
+          sprytnyPunkty++;
+        }
+        sprytnyWynikEl.textContent = 'Wynik: ' + sprytnyPunkty + ' z ' + sprytnyZrobione;
+        if (wyjTekst) {
+          sprytnyWyjEl.textContent = wyjTekst;
+          sprytnyWyjEl.style.display = 'block';
+        }
+        sprytnyBtnDalej.style.display = 'block';
+      });
+      sprytnyOpcjeEl.appendChild(btn);
+    });
+  }
+
+  sprytnyBtnDalej.addEventListener('click', zaladujSprytnePytanie);
+  zaladujSprytnePytanie();
+
+  // LOGIKA TESTÓW BEC 1 I BEC 2
+  function stworzInstancjeTestu(bazaPytan, prefix) {
+    let nr = 0;
+    let punkty = 0;
+    let zakonczone = 0;
+
+    const elNr = document.getElementById(prefix + '-nr');
+    const elWynik = document.getElementById(prefix + '-wynik');
+    const elTresc = document.getElementById(prefix + '-tresc');
+    const elOpcje = document.getElementById(prefix + '-opcje');
+    const elWyj = document.getElementById(prefix + '-wyjasnienie');
+    const btnDalej = document.getElementById(prefix + '-btn-dalej');
+
+    function przetasujPytanie(p) {
+      const opcjeZFlaga = p.opcje.map((o, idx) => ({ tekst: o, poprawna: idx === p.poprawna }));
+      for (let i = opcjeZFlaga.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opcjeZFlaga[i], opcjeZFlaga[j]] = [opcjeZFlaga[j], opcjeZFlaga[i]];
+      }
+      return {
+        tresc: p.tresc,
+        opcje: opcjeZFlaga.map(o => o.tekst),
+        poprawna: opcjeZFlaga.findIndex(o => o.poprawna),
+        wyjasnienie: p.wyjasnienie
+      };
+    }
+
+    function przygotujPule() {
+      const kopia = bazaPytan.slice();
+      for (let i = kopia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [kopia[i], kopia[j]] = [kopia[j], kopia[i]];
+      }
+      return kopia.map(przetasujPytanie);
+    }
+
+    let pytania = przygotujPule();
+
+    function zaladujPytanie() {
+      if (pytania.length === 0) return;
+      const p = pytania[nr];
+      elNr.textContent = 'Pytanie ' + (nr + 1) + ' z ' + pytania.length;
+      elWynik.textContent = 'Wynik: ' + punkty + ' z ' + zakonczone;
+      elTresc.textContent = p.tresc;
+      elOpcje.innerHTML = '';
+      elWyj.style.display = 'none';
+      btnDalej.style.display = 'none';
+
+      p.opcje.forEach((opc, oIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'przycisk-opcja';
+        btn.textContent = opc;
+        btn.addEventListener('click', () => {
+          Array.from(elOpcje.children).forEach((b, bIdx) => {
+            b.disabled = true;
+            if (bIdx === p.poprawna) b.classList.add('dobra');
+            else if (bIdx === oIdx) b.classList.add('zla');
+          });
+          zakonczone++;
+          if (oIdx === p.poprawna) {
+            punkty++;
+          }
+          elWynik.textContent = 'Wynik: ' + punkty + ' z ' + zakonczone;
+          if (p.wyjasnienie) {
+            elWyj.textContent = p.wyjasnienie;
+            elWyj.style.display = 'block';
+          }
+          btnDalej.style.display = 'block';
+        });
+        elOpcje.appendChild(btn);
+      });
+    }
+
+    btnDalej.addEventListener('click', () => {
+      nr++;
+      if (nr >= pytania.length) {
+        nr = 0;
+        pytania = przygotujPule();
+      }
+      zaladujPytanie();
+      window.scrollTo(0, 0);
+    });
+
+    zaladujPytanie();
+  }
+
+  stworzInstancjeTestu(window.TEST_BEC_1 || [], 'bec1');
+  stworzInstancjeTestu(window.TEST_BEC_2 || [], 'bec2');
+
+  // WYSZUKIWARKA BAZY
+  const poleSzukania = document.getElementById('pole-szukania');
+  const listaWynikow = document.getElementById('lista-wynikow');
+  const licznikSzukania = document.getElementById('licznik-szukania');
+
+  function filtrujListe() {
+    const q = (poleSzukania.value || '').toLowerCase().trim();
+    const pasujace = baza.filter(w => {
+      if (!q) return true;
+      return (w.en || '').toLowerCase().includes(q) || (w.pl || '').toLowerCase().includes(q);
+    });
+
+    licznikSzukania.textContent = 'Znaleziono: ' + pasujace.length + ' słówek';
+    listaWynikow.innerHTML = '';
+
+    pasujace.slice(0, 100).forEach(w => {
+      const el = document.createElement('div');
+      el.className = 'pozycja-listy';
+      el.innerHTML = '<div class="pozycja-slowo">' + w.en + '</div>' +
+                     '<div class="pozycja-pl">' + w.pl + '</div>' +
+                     (w.trap ? '<div class="pozycja-pulapka">' + w.trap + '</div>' : '');
+      listaWynikow.appendChild(el);
+    });
+  }
+
+  poleSzukania.addEventListener('input', filtrujListe);
+  filtrujListe();
+
+})();
+</script>
+
+</body>
+</html>

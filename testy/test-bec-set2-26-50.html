@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pl" data-motyw="granat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Słownictwa BEC C1 — Zestaw 2 (Pytania 26–50)</title>
+<style>
+:root{
+  color-scheme: light;
+  --akcent:#234a6b; --akcent-tlo:#eaf0f6;
+  --papier:#fbfbf9; --karta:#fff; --tusz:#1a222b; --przygasly:#5d6b78; --slaby:#93a0ab;
+  --linia:#e3e8ed; --dobrze:#2f6b4f; --dobrze-tlo:#eaf3ee; --zle:#8a3b3b; --zle-tlo:#f8efee;
+}
+
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--tusz);background:var(--papier);line-height:1.65;font-size:17px;
+  max-width:46rem;margin:0 auto;padding:0 24px 140px;-webkit-font-smoothing:antialiased}
+h1{font-family:Georgia,serif;font-size:1.9rem;margin:34px 0 4px;font-weight:600}
+.metryka{color:var(--przygasly);font-size:.93rem;padding-bottom:20px;border-bottom:1px solid var(--linia);margin-bottom:8px}
+
+#ster{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  margin:0 -24px 24px;padding:10px 24px;border-bottom:1px solid var(--linia);
+  background:color-mix(in srgb,var(--papier) 88%,transparent);backdrop-filter:blur(10px)}
+#ster button{font:600 .74rem/1 -apple-system,sans-serif;color:var(--przygasly);background:var(--karta);
+  border:1px solid var(--linia);border-radius:99px;padding:7px 13px;cursor:pointer;transition:.15s}
+#ster button:hover{color:var(--akcent);border-color:var(--akcent)}
+#ster button[aria-pressed="true"]{background:var(--akcent);border-color:var(--akcent);color:var(--papier)}
+#ster .rozpieracz{flex:1}
+#wynik{font:700 .8rem/1 -apple-system,sans-serif;color:var(--akcent)}
+
+.pytanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;padding:20px 24px;margin:18px 0}
+.pytanie.ok{border-color:var(--dobrze)}
+.pytanie.blad{border-color:var(--zle)}
+.pytanie > .numer{display:block;font:700 .66rem/1 -apple-system,sans-serif;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--slaby);margin-bottom:9px}
+.pytanie .tresc{font-size:1.03rem;margin-bottom:14px}
+.pytanie .tresc b{color:var(--akcent)}
+
+.opcje{display:flex;flex-direction:column;gap:7px}
+.opcja{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+  font:inherit;color:var(--tusz);background:transparent;border:1px solid var(--linia);
+  border-radius:9px;padding:11px 14px;cursor:pointer;transition:.14s;line-height:1.5}
+.opcja:hover:not(:disabled){border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja:disabled{cursor:default}
+.opcja .klucz{flex:0 0 1.5rem;font:700 .84rem/1.5 -apple-system,sans-serif;color:var(--slaby)}
+.opcja.wybrana{border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja.dobra{border-color:var(--dobrze);background:var(--dobrze-tlo)}
+.opcja.dobra .klucz{color:var(--dobrze)}
+.opcja.zla{border-color:var(--zle);background:var(--zle-tlo)}
+.opcja.zla .klucz{color:var(--zle)}
+
+.wyjasnienie{margin-top:14px;padding:12px 16px;border-left:3px solid var(--slaby);
+  background:var(--akcent-tlo);border-radius:0 8px 8px 0;font-size:.94rem;color:var(--przygasly)}
+.wyjasnienie b{color:var(--akcent)}
+.wyjasnienie[hidden]{display:none}
+
+#podsumowanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;
+  padding:26px 28px;margin:34px 0;text-align:center}
+#podsumowanie[hidden]{display:none}
+#podsumowanie .procent{font:600 3rem/1 Georgia,serif;color:var(--akcent);display:block}
+#podsumowanie .opis{color:var(--przygasly);margin:10px 0 18px}
+#podsumowanie button{font:600 .82rem -apple-system,sans-serif;color:var(--papier);background:var(--akcent);
+  border:0;border-radius:9px;padding:11px 20px;cursor:pointer;margin:0 5px}
+
+@media print{#ster{display:none}.opcja{break-inside:avoid}.pytanie{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<nav id="ster">
+  <button id="btn-mieszaj" aria-pressed="false">Mieszaj pytania</button>
+  <button id="btn-tylko-bledne" aria-pressed="false">Tylko błędne</button>
+  <button id="btn-reset">Od nowa</button>
+  <span class="rozpieracz"></span>
+  <span id="wynik">0 / 0</span>
+</nav>
+
+<h1 id="tytul">Test Słownictwa BEC C1 — Zestaw 2</h1>
+<p class="metryka" id="metryka">Business English Certificate · Arkusz bec voc 4 · 25 pytań (26–50) z ćwiczeń</p>
+
+<div id="pytania"></div>
+
+<div id="podsumowanie" hidden>
+  <span class="procent" id="procent">—</span>
+  <p class="opis" id="opis-wyniku"></p>
+  <button id="btn-powtorz-bledne">Powtórz błędne</button>
+  <button id="btn-od-nowa">Od nowa</button>
+</div>
+
+<script id="dane" type="application/json">
+{
+  "tytul": "Test Słownictwa BEC C1 — Zestaw 2 (Pytania 26–50)",
+  "metryka": "Pytania 26–50 z pliku bec voc 422032022 · 25 pytań · próg 80% (20/25)",
+  "motyw": "granat",
+  "pytania": [
+    {
+      "typ": "abcd",
+      "tresc": "26. The inspector said the boxes of photocopier paper were a fire ___.",
+      "opcje": ["hazard", "precaution", "liability"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: hazard. Zagrożenie pożarowe to 'fire hazard'. 'Precaution' to środek zapobiegawczy (fire precaution), a 'liability' to odpowiedzialność prawna lub zobowiązanie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "27. The product's losing money but it's a ___ to grow market share.",
+      "opcje": ["gimmick", "loss-leader", "sample"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: loss-leader. Produkt sprzedawany celowo ze stratą w celu zdobycia udziału w rynku lub przyciągnięcia klientów to 'loss-leader'. 'Gimmick' to tani chwyt marketingowy, a 'sample' to darmowa próbka."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "28. After the birth of her baby she took a year's ___ leave.",
+      "opcje": ["benefit", "maternity", "annual"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: maternity. Urlop macierzyński to 'maternity leave' (dla ojca: 'paternity leave'). 'Annual leave' to urlop wypoczynkowy, a 'benefit' to zasiłek."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "29. The cleaner hurt her arm when she ___ on the wet floor.",
+      "opcje": ["tripped", "banged", "slipped"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: slipped. Na mokrej podłodze człowiek się ślizga: 'slipped on the wet floor'. 'Tripped' to potknąć się o coś (tripped over), a 'banged' to uderzyć się (banged her arm)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "30. Recent stock market ___ make it impossible to predict trends.",
+      "opcje": ["excesses", "fluctuations", "improvements"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: fluctuations. Nieregularne wahania kursów giełdowych to 'market fluctuations' (lub volatility). 'Excesses' to ekscesy, a 'improvements' to poprawa."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "31. The job advert mentioned an excellent ___ package.",
+      "opcje": ["remuneration", "redundancy", "retirement"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: remuneration. Pakiet wynagrodzenia oferowany w ogłoszeniu to 'remuneration package'. 'Redundancy package' to odprawa przy zwolnieniu, a 'retirement package' to pakiet emerytalny."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "32. They had to ___ the product due to reliability problems.",
+      "opcje": ["launch", "withdraw", "feedback"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: withdraw. Wycofać produkt z rynku z powodu awarii to 'to withdraw the product' (lub product recall). 'Launch' to wprowadzenie na rynek, a 'feedback' to opinie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "33. According to my ___ I've now got a 3.30 meeting with Mr Sorensson.",
+      "opcje": ["inventory", "strategy", "schedule"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: schedule. Harmonogram/grafik spotkań to 'schedule' (lub diary). 'Inventory' to stan magazynowy, a 'strategy' to strategia."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "34. The ___ of this appraisal is not only to review performance but also to discuss future professional development.",
+      "opcje": ["assignment", "target", "objective"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: objective. Nadrzędny cel procesu/rozmowy ewaluacyjnej to 'objective' (lub purpose). 'Target' to cel liczbowy (np. target sprzedaży), a 'assignment' to zadanie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "35. We've had problems supplying some of our retail ___.",
+      "opcje": ["outlets", "chains", "points"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: outlets. Punkty sprzedaży detalicznej to 'retail outlets'. Słowo 'chains' to całe sieci, a 'points' to błędna kalka z polskiego."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "36. I was actually recruited by a ___ which was all very exciting.",
+      "opcje": ["tribunal", "headhunter", "selection committee"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: headhunter. Zewnętrzny rekruter pozyskujący kadrę menedżerską z innych firm to 'headhunter'. 'Tribunal' to sąd pracy, a 'selection committee' to komisja naborcza."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "37. Our website has now broken the target of 100,000 new ___.",
+      "opcje": ["subscriptions", "purchasers", "sponsorships"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: subscriptions. Płatne abonamenty i subskrypcje w serwisie internetowym to 'subscriptions'. 'Sponsorships' to umowy sponsorskie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "38. We're having problems meeting targets due to a ___ of skilled workers.",
+      "opcje": ["short list", "shortage", "short term"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: shortage. Niedobór pracowników na rynku to 'shortage of skilled workers'. 'Short list' to finałowa lista kandydatów, a 'short term' to krótki okres."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "39. Boarding will start at 4.40 at ___ 44A. Have a nice flight.",
+      "opcje": ["gate", "lounge", "check-in"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: gate. Wejście na pokład samolotu (boarding) odbywa się przy bramce: 'gate'. 'Lounge' to salonik biznesowy, a 'check-in' to odprawa biletowo-bagażowa."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "40. Appointing him seemed a great decision but he never fulfilled his ___.",
+      "opcje": ["prospects", "aptitude", "potential"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: potential. Stała kolokacja: 'to fulfill one's potential' (zrealizować swój potencjał). 'Aptitude' to predyspozycja/talent (nie łączy się z fulfill)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "41. As HR Manager, I have to ___ performance and decide pay rises.",
+      "opcje": ["approve", "criticise", "appraise"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: appraise. Oceniać wyniki pracy podwładnych w HR to 'to appraise performance' (rzeczownik: performance appraisal). 'Approve' to zatwierdzić, a 'criticise' to krytykować."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "42. The newspaper story about working conditions got us a lot of bad ___.",
+      "opcje": ["word of mouth", "marketing", "publicity"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: publicity. Negatywny rozgłos w prasie to 'bad publicity'. 'Word of mouth' to marketing szeptany (pocztą pantoflową), a 'marketing' to planowane kampanie."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "43. About 50 per cent of the employees are members of the ___.",
+      "opcje": ["workforce", "trade union", "council"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: trade union. Pracownicy zapisują się i są członkami (*members of*) związku zawodowego: 'trade union'. Całość zatrudnionych to 'workforce'."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "44. The new online expenses system will ___ claims a lot quicker.",
+      "opcje": ["implement", "process", "permit"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: process. System komputerowy przetwarza wnioski wydatkowe: 'process claims'. 'Implement' oznacza wdrożenie całego systemu."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "45. There are lots of illegal imitation products available on the ___ market.",
+      "opcje": ["free", "black", "direct"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: black. Nielegalne podróbki sprzedaje się na czarnym rynku: 'black market'. 'Free market' to legalny wolny rynek, a 'direct market' to rynek bezpośredni."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "46. The poor conditions mean we have a high ___ of staff in our company.",
+      "opcje": ["turnover", "deficit", "departure"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: turnover. Rotacja pracowników w dziale HR to 'turnover of staff' (lub staff turnover). 'Deficit' to deficyt budżetowy."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "47. Carrying all those books meant I had to pay for ___.",
+      "opcje": ["excess baggage", "hand luggage", "baggage allowance"],
+      "poprawna": 0,
+      "wyjasnienie": "Poprawnie: excess baggage. Opłata za przekroczenie dopuszczalnej wagi bagażu to 'excess baggage'. 'Baggage allowance' to bezpłatny limit wagowy, a 'hand luggage' to bagaż podręczny."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "48. The ___ in smartphone sales led to a massive increase in mobile internet usage.",
+      "opcje": ["strength", "volume", "boom"],
+      "poprawna": 2,
+      "wyjasnienie": "Poprawnie: boom. Kolokacja z przyimkiem 'in' oznaczająca gwałtowny rozkwit to 'a boom in sales'. 'Volume' wymagałoby przyimka 'of' (*the volume of sales*)."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "49. After struggling for three years, the company finally filed for ___.",
+      "opcje": ["failure", "bankruptcy", "collapse"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: bankruptcy. Złożyć sądowy wniosek o upadłość to 'to file for bankruptcy'. Zwroty *filed for failure* i *filed for collapse* są błędami."
+    },
+    {
+      "typ": "abcd",
+      "tresc": "50. After several warnings, he was finally dismissed for poor ___.",
+      "opcje": ["temping", "timekeeping", "timing"],
+      "poprawna": 1,
+      "wyjasnienie": "Poprawnie: timekeeping. Notoryczne spóźnianie się do pracy to 'poor timekeeping'. 'Timing' to wyczucie czasu w działaniu, a 'temping' to praca dorywcza (temp work)."
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  const dane = JSON.parse(document.getElementById('dane').textContent);
+  const kosz = document.getElementById('pytania');
+  const wynikEl = document.getElementById('wynik');
+  const podsum = document.getElementById('podsumowanie');
+
+  document.title = dane.tytul;
+  document.getElementById('tytul').textContent = dane.tytul;
+  document.getElementById('metryka').textContent = dane.metryka || '';
+  if (dane.motyw) document.documentElement.dataset.motyw = dane.motyw;
+
+  const KLUCZE = ['a)','b)','c)','d)'];
+  let stan = [];
+  let mieszaj = false, tylkoBledne = false;
+
+  function pomieszaj(tablica){
+    const kopia = tablica.slice();
+    for (let i = kopia.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [kopia[i], kopia[j]] = [kopia[j], kopia[i]];
+    }
+    return kopia;
+  }
+
+  function renderuj(){
+    kosz.innerHTML = '';
+    let widoczne = 0;
+    stan.forEach((st, idx) => {
+      if (tylkoBledne && st.poprawnie !== false) return;
+      widoczne++;
+      const el = document.createElement('article');
+      el.className = 'pytanie';
+      if (st.poprawnie === true) el.classList.add('ok');
+      if (st.poprawnie === false) el.classList.add('blad');
+
+      const nr = document.createElement('span');
+      nr.className = 'numer';
+      nr.textContent = `Pytanie ${st.nrOryginalny + 26} z 50 (Pozycja ${idx + 1} z ${stan.length})`;
+      el.appendChild(nr);
+
+      const tresc = document.createElement('div');
+      tresc.className = 'tresc';
+      tresc.textContent = st.pyt.tresc;
+      el.appendChild(tresc);
+
+      const opcjeDiv = document.createElement('div');
+      opcjeDiv.className = 'opcje';
+      st.pyt.opcje.forEach((opcjaTekst, opcIdx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'opcja';
+        if (st.wybrano === opcIdx) btn.classList.add('wybrana');
+        if (st.poprawnie !== null) {
+          btn.disabled = true;
+          if (opcIdx === st.pyt.poprawna) btn.classList.add('dobra');
+          else if (st.wybrano === opcIdx) btn.classList.add('zla');
+        }
+        btn.innerHTML = `<span class="klucz">${KLUCZE[opcIdx] || ''}</span> <span>${opcjaTekst}</span>`;
+        btn.addEventListener('click', () => {
+          st.wybrano = opcIdx;
+          st.poprawnie = (opcIdx === st.pyt.poprawna);
+          aktualizujWynik();
+          renderuj();
+        });
+        opcjeDiv.appendChild(btn);
+      });
+      el.appendChild(opcjeDiv);
+
+      if (st.poprawnie !== null && st.pyt.wyjasnienie) {
+        const wyj = document.createElement('div');
+        wyj.className = 'wyjasnienie';
+        wyj.innerHTML = `<b>Wyjaśnienie:</b> ${st.pyt.wyjasnienie}`;
+        el.appendChild(wyj);
+      }
+      kosz.appendChild(el);
+    });
+
+    if (widoczne === 0 && tylkoBledne) {
+      kosz.innerHTML = '<p class="metryka" style="text-align:center;padding:30px 0;">Brak błędnych odpowiedzi. Wszystko opanowane!</p>';
+    }
+  }
+
+  function aktualizujWynik(){
+    const zakonczone = stan.filter(s => s.poprawnie !== null);
+    const poprawne = stan.filter(s => s.poprawnie === true).length;
+    wynikEl.textContent = `${poprawne} / ${dane.pytania.length}`;
+
+    if (zakonczone.length === dane.pytania.length) {
+      podsum.hidden = false;
+      const proc = Math.round((poprawne / dane.pytania.length) * 100);
+      document.getElementById('procent').textContent = `${proc}%`;
+      const opis = proc >= 80 ? `Wynik: ${poprawne}/${dane.pytania.length}. Próg zaliczenia osiągnięty z zapasem.` : `Wynik: ${poprawne}/${dane.pytania.length}. Przećwicz błędne odpowiedzi przyciskiem poniżej.`;
+      document.getElementById('opis-wyniku').textContent = opis;
+    } else {
+      podsum.hidden = true;
+    }
+  }
+
+  function inicjalizuj(){
+    let lista = dane.pytania.map((pyt, idx) => ({ pyt, nrOryginalny: idx, poprawnie: null, wybrano: null }));
+    if (mieszaj) lista = pomieszaj(lista);
+    stan = lista;
+    aktualizujWynik();
+    renderuj();
+  }
+
+  document.getElementById('btn-mieszaj').addEventListener('click', function(){
+    mieszaj = !mieszaj;
+    this.setAttribute('aria-pressed', String(mieszaj));
+    inicjalizuj();
+  });
+
+  document.getElementById('btn-tylko-bledne').addEventListener('click', function(){
+    tylkoBledne = !tylkoBledne;
+    this.setAttribute('aria-pressed', String(tylkoBledne));
+    renderuj();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', inicjalizuj);
+  document.getElementById('btn-od-nowa').addEventListener('click', inicjalizuj);
+  document.getElementById('btn-powtorz-bledne').addEventListener('click', () => {
+    tylkoBledne = true;
+    document.getElementById('btn-tylko-bledne').setAttribute('aria-pressed', 'true');
+    renderuj();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  inicjalizuj();
+})();
+</script>
+
+</body>
+</html>
