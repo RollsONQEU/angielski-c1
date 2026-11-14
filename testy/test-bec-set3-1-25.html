@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl" data-motyw="granat">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Słownictwa BEC C1 — Zestaw 3 (Pytania 1–25)</title>
+<style>
+:root{
+  color-scheme: light;
+  --akcent:#234a6b; --akcent-tlo:#eaf0f6;
+  --papier:#fbfbf9; --karta:#fff; --tusz:#1a222b; --przygasly:#5d6b78; --slaby:#93a0ab;
+  --linia:#e3e8ed; --dobrze:#2f6b4f; --dobrze-tlo:#eaf3ee; --zle:#8a3b3b; --zle-tlo:#f8efee;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--tusz);background:var(--papier);line-height:1.65;font-size:17px;
+  max-width:46rem;margin:0 auto;padding:0 24px 140px;-webkit-font-smoothing:antialiased}
+h1{font-family:Georgia,serif;font-size:1.9rem;margin:34px 0 4px;font-weight:600}
+.metryka{color:var(--przygasly);font-size:.93rem;padding-bottom:20px;border-bottom:1px solid var(--linia);margin-bottom:8px}
+
+#ster{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  margin:0 -24px 24px;padding:10px 24px;border-bottom:1px solid var(--linia);
+  background:rgba(251, 251, 249, 0.94);backdrop-filter:blur(10px)}
+#ster button{font:600 .74rem/1 -apple-system,sans-serif;color:var(--przygasly);background:var(--karta);
+  border:1px solid var(--linia);border-radius:99px;padding:7px 13px;cursor:pointer;transition:.15s}
+#ster button:hover{color:var(--akcent);border-color:var(--akcent)}
+#ster button[aria-pressed="true"]{background:var(--akcent);border-color:var(--akcent);color:var(--papier)}
+#ster .rozpieracz{flex:1}
+#wynik{font:700 .8rem/1 -apple-system,sans-serif;color:var(--akcent)}
+
+.pytanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;padding:20px 24px;margin:18px 0}
+.pytanie.ok{border-color:var(--dobrze)}
+.pytanie.blad{border-color:var(--zle)}
+.pytanie > .numer{display:block;font:700 .66rem/1 -apple-system,sans-serif;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--slaby);margin-bottom:9px}
+.pytanie .tresc{font-size:1.03rem;margin-bottom:14px}
+.pytanie .tresc b{color:var(--akcent)}
+
+.opcje{display:flex;flex-direction:column;gap:7px}
+.opcja{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+  font:inherit;color:var(--tusz);background:transparent;border:1px solid var(--linia);
+  border-radius:9px;padding:11px 14px;cursor:pointer;transition:.14s;line-height:1.5}
+.opcja:hover:not(:disabled){border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja:disabled{cursor:default}
+.opcja .klucz{flex:0 0 1.5rem;font:700 .84rem/1.5 -apple-system,sans-serif;color:var(--slaby)}
+.opcja.wybrana{border-color:var(--akcent);background:var(--akcent-tlo)}
+.opcja.dobra{border-color:var(--dobrze);background:var(--dobrze-tlo)}
+.opcja.dobra .klucz{color:var(--dobrze)}
+.opcja.zla{border-color:var(--zle);background:var(--zle-tlo)}
+
+.wyjasnienie{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.9rem;line-height:1.55;background:var(--akcent-tlo);color:var(--tusz);display:none}
+.wyjasnienie.widoczne{display:block}
+
+#podsumowanie{background:var(--karta);border:1px solid var(--linia);border-radius:12px;padding:22px;margin:28px 0;text-align:center}
+#podsumowanie b{font-size:1.8rem;color:var(--akcent);display:block;margin:6px 0}
+</style>
+</head>
+<body>
+
+<nav id="ster">
+  <button id="btn-mieszaj" type="button" aria-pressed="false">Mieszaj kolejność</button>
+  <button id="btn-tylko-bledne" type="button" aria-pressed="false">Tylko błędne (0)</button>
+  <button id="btn-reset" type="button">Resetuj</button>
+  <div class="rozpieracz"></div>
+  <a href="../quiz.html" style="font:600 .74rem -apple-system,sans-serif;color:var(--akcent);text-decoration:none;">Pełny Quiz &rarr;</a>
+  <span id="wynik">0 / 25</span>
+</nav>
+
+<h1>Test Słownictwa BEC C1 — Zestaw 3 (Pytania 1–25)</h1>
+<p class="metryka">Oficjalny arkusz lektorki bec_voc_3 · 25 pytań wielokrotnego wyboru · Wyjaśnienia i pułapki</p>
+
+<div id="podsumowanie" hidden>
+  <div>Twój wynik:</div>
+  <b id="procent">0%</b>
+  <p id="opis-wyniku" class="metryka"></p>
+  <button id="btn-powtorz-bledne" type="button" style="margin-top:10px;font:600 .8rem -apple-system,sans-serif;padding:8px 16px;background:var(--akcent);color:#fff;border:none;border-radius:99px;cursor:pointer;">Powtórz tylko błędne</button>
+</div>
+
+<div id="kontener-pytan"></div>
+
+<script>
+const DANE = {"pytania": [{"tresc": "The market slowly became _____ by imitation products.", "opcje": [{"klucz": "a", "tekst": "targeted"}, {"klucz": "b", "tekst": "saturated"}, {"klucz": "c", "tekst": "merchandised"}], "odpowiedz": "b", "wyjasnienie": "Saturated market (rynek nasycony). Rynek został zalały tanimi podróbkami i popyt został w pełni nasycony. Targeted oznacza skierowany do grupy docelowej, a merchandised to wyeksponowany w sklepie."}, {"tresc": "All expenses are _____ in the following month's pay packet.", "opcje": [{"klucz": "a", "tekst": "allocated"}, {"klucz": "b", "tekst": "reimbursed"}, {"klucz": "c", "tekst": "submitted"}], "odpowiedz": "b", "wyjasnienie": "Reimbursed (zwracane / refinansowane). Wydatki służbowe pracownika są zwracane w kolejnej wypłacie (reimburse expenses). Allocated to przydzielone, a submitted to złożone."}, {"tresc": "The Government has just raised the minimum hourly _____.", "opcje": [{"klucz": "a", "tekst": "salary"}, {"klucz": "b", "tekst": "bonus"}, {"klucz": "c", "tekst": "wage"}], "odpowiedz": "c", "wyjasnienie": "Hourly wage (stawka godzinowa). Wage to płaca liczona za godziny lub tygodnie, podczas gdy salary to stała miesięczna lub roczna pensja na etacie."}, {"tresc": "As part of the reorganisation we all had to rewrite our job _____.", "opcje": [{"klucz": "a", "tekst": "description"}, {"klucz": "b", "tekst": "satisfaction"}, {"klucz": "c", "tekst": "security"}], "odpowiedz": "a", "wyjasnienie": "Job description (opis stanowiska / zakres obowiązków). Oficjalny dokument określający obowiązki pracownika."}, {"tresc": "If we don't take off soon, we'll arrive late at Frankfurt and I'll miss my _____ flight to Amsterdam.", "opcje": [{"klucz": "a", "tekst": "connecting"}, {"klucz": "b", "tekst": "scheduled"}, {"klucz": "c", "tekst": "transfer"}], "odpowiedz": "a", "wyjasnienie": "Connecting flight (lot przesiadkowy / połączenie tranzytowe). Samolot, na który pasażer przesiada się na lotnisku pośrednim."}, {"tresc": "They're cutting jobs due to the massive _____ in sales.", "opcje": [{"klucz": "a", "tekst": "slump"}, {"klucz": "b", "tekst": "recovery"}, {"klucz": "c", "tekst": "devaluation"}], "odpowiedz": "a", "wyjasnienie": "Slump in sales (gwałtowny spadek sprzedaży / krach). Recovery to ożywienie, a devaluation to dewaluacja waluty."}, {"tresc": "They phoned to say I'd got the job but I haven't had a letter of _____ yet.", "opcje": [{"klucz": "a", "tekst": "recruitment"}, {"klucz": "b", "tekst": "selection"}, {"klucz": "c", "tekst": "appointment"}], "odpowiedz": "c", "wyjasnienie": "Letter of appointment (oficjalne pismo o zatrudnieniu / powołaniu na stanowisko). Formalne potwierdzenie angażu."}, {"tresc": "That radio ad has a really nice _____ which I keep singing in my head.", "opcje": [{"klucz": "a", "tekst": "jingle"}, {"klucz": "b", "tekst": "trademark"}, {"klucz": "c", "tekst": "slogan"}], "odpowiedz": "a", "wyjasnienie": "Jingle (dżingiel reklamowy / melodyjka radiowa). Krótki, chwytliwy motyw muzyczny wpadający w ucho. Slogan to hasło słowne."}, {"tresc": "The flight was _____ due to severe weather conditions.", "opcje": [{"klucz": "a", "tekst": "prevented"}, {"klucz": "b", "tekst": "notified"}, {"klucz": "c", "tekst": "cancelled"}], "odpowiedz": "c", "wyjasnienie": "Cancelled (odwołany). Lot został odwołany z powodu trudnych warunków atmosferycznych."}, {"tresc": "Most of the company's workforce are _____ office workers.", "opcje": [{"klucz": "a", "tekst": "white-collar"}, {"klucz": "b", "tekst": "apprentice"}, {"klucz": "c", "tekst": "blue-collar"}], "odpowiedz": "a", "wyjasnienie": "White-collar (pracownicy biurowi / umysłowi). Blue-collar to pracownicy fizyczni lub produkcyjni."}, {"tresc": "I was represented in court by my _____.", "opcje": [{"klucz": "a", "tekst": "judge"}, {"klucz": "b", "tekst": "shop steward"}, {"klucz": "c", "tekst": "attorney"}], "odpowiedz": "c", "wyjasnienie": "Attorney (adwokat / pełnomocnik prawny). Judge to sędzia, a shop steward to mąż zaufania / delegat związkowy w fabryce."}, {"tresc": "Make sure you scan all necessary _____ with your expenses claims.", "opcje": [{"klucz": "a", "tekst": "recipes"}, {"klucz": "b", "tekst": "payslips"}, {"klucz": "c", "tekst": "receipts"}], "odpowiedz": "c", "wyjasnienie": "Receipts (paragony / rachunki). Recipes to przepisy kulinarne (fałszywy przyjaciel!), a payslips to paski płacowe."}, {"tresc": "Don't forget to include two _____ at the end of your CV.", "opcje": [{"klucz": "a", "tekst": "references"}, {"klucz": "b", "tekst": "evaluations"}, {"klucz": "c", "tekst": "records"}], "odpowiedz": "a", "wyjasnienie": "References (referencje / osoby polecające). Dane kontaktowe do poprzednich przełożonych na końcu życiorysu."}, {"tresc": "We prepared a _____ to send to our 2,000 top customers.", "opcje": [{"klucz": "a", "tekst": "mailshot"}, {"klucz": "b", "tekst": "marketing plan"}, {"klucz": "c", "tekst": "franchise"}], "odpowiedz": "a", "wyjasnienie": "Mailshot (masowa wysyłka reklamowa pocztą tradycyjną lub e-mail). Kampania direct mail do bazy kluczowych klientów."}, {"tresc": "_____ assessment is about examining what could harm people at work.", "opcje": [{"klucz": "a", "tekst": "Security"}, {"klucz": "b", "tekst": "Damage"}, {"klucz": "c", "tekst": "Risk"}], "odpowiedz": "c", "wyjasnienie": "Risk assessment (ocena ryzyka zawodowego BHP). Procedura badania zagrożeń mogących zaszkodzić pracownikom na stanowisku."}, {"tresc": "My PA normally _____ all my expenses claims.", "opcje": [{"klucz": "a", "tekst": "deals with"}, {"klucz": "b", "tekst": "delegates"}, {"klucz": "c", "tekst": "incurs"}], "odpowiedz": "a", "wyjasnienie": "Deals with (zajmuje się / obsługuje). Asystentka osobista (PA) przetwarza wnioski o zwrot wydatków. Incur to ponosić koszty."}, {"tresc": "Every year I have a performance _____ with my line manager.", "opcje": [{"klucz": "a", "tekst": "discussion"}, {"klucz": "b", "tekst": "appraisal"}, {"klucz": "c", "tekst": "testimonial"}], "odpowiedz": "b", "wyjasnienie": "Performance appraisal (roczna ocena pracownicza). Formalna ewaluacja osiągnięć i celów przeprowadzana przez bezpośredniego przełożonego (line manager)."}, {"tresc": "We need to freshen up our _____ advertising at supermarket check-outs.", "opcje": [{"klucz": "a", "tekst": "exhibition"}, {"klucz": "b", "tekst": "point-of-sale"}, {"klucz": "c", "tekst": "billboard"}], "odpowiedz": "b", "wyjasnienie": "Point-of-sale advertising (reklama w punkcie sprzedaży / POS). Materiały promocyjne umieszczane bezpośrednio przy kasach supermarketu."}, {"tresc": "After four quarters of negative growth the country was officially in _____.", "opcje": [{"klucz": "a", "tekst": "liquidation"}, {"klucz": "b", "tekst": "recession"}, {"klucz": "c", "tekst": "depreciation"}], "odpowiedz": "b", "wyjasnienie": "Recession (recesja gospodarcza). Spadek PKB przez co najmniej dwa lub cztery kolejne kwartały. Liquidation to likwidacja spółki."}, {"tresc": "We need to _____ our product more from our competitors'.", "opcje": [{"klucz": "a", "tekst": "differentiate"}, {"klucz": "b", "tekst": "distribute"}, {"klucz": "c", "tekst": "differ"}], "odpowiedz": "a", "wyjasnienie": "Differentiate (wyróżnić / odróżnić produkt). Czasownik przechodni oznaczający nadanie produktowi unikalnych cech odróżniających od konkurencji."}, {"tresc": "After her dismissal she took the company to _____.", "opcje": [{"klucz": "a", "tekst": "prosecution"}, {"klucz": "b", "tekst": "law"}, {"klucz": "c", "tekst": "court"}], "odpowiedz": "c", "wyjasnienie": "Take the company to court (pozwać firmę do sądu / wytoczyć proces). Utrwalony zwrot frazeologiczny."}, {"tresc": "The _____ won his unfair dismissal case and the company paid $20,000.", "opcje": [{"klucz": "a", "tekst": "plaintiff"}, {"klucz": "b", "tekst": "defendant"}, {"klucz": "c", "tekst": "witness"}], "odpowiedz": "a", "wyjasnienie": "Plaintiff (powód / strona wnosząca pozew o bezprawne zwolnienie). Defendant to pozwany (firma), a witness to świadek."}, {"tresc": "We ran a successful social media marketing _____ for six weeks.", "opcje": [{"klucz": "a", "tekst": "prospectus"}, {"klucz": "b", "tekst": "mix"}, {"klucz": "c", "tekst": "campaign"}], "odpowiedz": "c", "wyjasnienie": "Marketing campaign (kampania marketingowa w mediach społecznościowych). Zorganizowane działania promocyjne rozłożone w czasie."}, {"tresc": "The workers went on _____ in protest against low pay.", "opcje": [{"klucz": "a", "tekst": "dispute"}, {"klucz": "b", "tekst": "vacation"}, {"klucz": "c", "tekst": "strike"}], "odpowiedz": "c", "wyjasnienie": "Go on strike (rozpocząć strajk). Zaprzestanie pracy w ramach protestu przeciwko niskim wynagrodzeniom."}, {"tresc": "We sold off all our _____ stock to make room in the warehouse.", "opcje": [{"klucz": "a", "tekst": "peak"}, {"klucz": "b", "tekst": "inventory"}, {"klucz": "c", "tekst": "surplus"}], "odpowiedz": "c", "wyjasnienie": "Surplus stock (zapas nadmiarowy / nadwyżka magazynowa). Niesprzedane towary wyprzedane po obniżonej cenie, aby zwolnić miejsce w magazynie."}]};
+
+(function(){
+  let stan = DANE.pytania.map((p, i) => ({ p, nr: i, odp: null, ok: null }));
+  let mieszaj = false;
+  let tylkoBledne = false;
+  const kontener = document.getElementById('kontener-pytan');
+  const wynikEl = document.getElementById('wynik');
+  const btnTylkoBledne = document.getElementById('btn-tylko-bledne');
+  const podsum = document.getElementById('podsumowanie');
+
+  function render(){
+    kontener.innerHTML = '';
+    let widoczne = 0;
+    stan.forEach((s, idx) => {
+      if (tylkoBledne && s.ok !== false) return;
+      widoczne++;
+      const div = document.createElement('div');
+      div.className = 'pytanie' + (s.ok === true ? ' ok' : (s.ok === false ? ' blad' : ''));
+      div.innerHTML = `
+        <span class="numer">Pytanie ${s.nr + 1} z ${DANE.pytania.length}</span>
+        <div class="tresc">${s.p.tresc.replace('_____', '<b>______</b>')}</div>
+        <div class="opcje"></div>
+        <div class="wyjasnienie${s.odp ? ' widoczne' : ''}">${s.p.wyjasnienie}</div>
+      `;
+      const opcjeDiv = div.querySelector('.opcje');
+      s.p.opcje.forEach(o => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'opcja';
+        if (s.odp) {
+          btn.disabled = true;
+          if (o.klucz === s.p.odpowiedz) btn.classList.add('dobra');
+          else if (o.klucz === s.odp) btn.classList.add('zla');
+        }
+        btn.innerHTML = `<span class="klucz">${o.klucz.toUpperCase()}</span><span>${o.tekst}</span>`;
+        btn.onclick = () => {
+          s.odp = o.klucz;
+          s.ok = (o.klucz === s.p.odpowiedz);
+          render();
+          aktualizujWynik();
+        };
+        opcjeDiv.appendChild(btn);
+      });
+      kontener.appendChild(div);
+    });
+    if (widoczne === 0 && tylkoBledne) {
+      kontener.innerHTML = '<p class="metryka" style="text-align:center;padding:30px 0;">Brak błędnych pytań. Wszystko opanowane!</p>';
+    }
+    const bledne = stan.filter(s => s.ok === false).length;
+    btnTylkoBledne.textContent = `Tylko błędne (${bledne})`;
+  }
+
+  function aktualizujWynik(){
+    const odp = stan.filter(s => s.ok !== null);
+    const dobre = stan.filter(s => s.ok === true).length;
+    wynikEl.textContent = `${dobre} / ${DANE.pytania.length}`;
+    if (odp.length === DANE.pytania.length) {
+      podsum.hidden = false;
+      const pct = Math.round((dobre / DANE.pytania.length) * 100);
+      document.getElementById('procent').textContent = pct + '%';
+      document.getElementById('opis-wyniku').textContent = pct >= 80 ? 'Świetny wynik! Materiał z bec_voc_3 opanowany na zaliczenie.' : 'Warto powtórzyć pytania z błędami.';
+    } else {
+      podsum.hidden = true;
+    }
+  }
+
+  function init(){
+    let lista = DANE.pytania.map((p, i) => ({ p, nr: i, odp: null, ok: null }));
+    if (mieszaj) lista.sort(() => Math.random() - 0.5);
+    stan = lista;
+    podsum.hidden = true;
+    aktualizujWynik();
+    render();
+  }
+
+  document.getElementById('btn-mieszaj').onclick = function(){
+    mieszaj = !mieszaj;
+    this.setAttribute('aria-pressed', String(mieszaj));
+    init();
+  };
+  btnTylkoBledne.onclick = function(){
+    tylkoBledne = !tylkoBledne;
+    this.setAttribute('aria-pressed', String(tylkoBledne));
+    render();
+  };
+  document.getElementById('btn-reset').onclick = init;
+  document.getElementById('btn-powtorz-bledne').onclick = function(){
+    tylkoBledne = true;
+    btnTylkoBledne.setAttribute('aria-pressed', 'true');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>
